@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>RCM · Panel docente</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/style.css">
+<link rel="stylesheet" href="css/docente.css">
+</head>
+<body class="docente-body">
+
+<header class="docente-header">
+  <div class="docente-header-left">
+    <span class="brand-mark">RCM</span>
+    <span class="demo-badge">DEMO · datos simulados</span>
+  </div>
+  <a href="index.html" class="link-back">← Volver al entrenamiento</a>
+</header>
+
+<main class="docente-main">
+
+  <!-- ============ VISTA 1: ROSTER DEL CURSO ============ -->
+  <section id="view-roster" class="docente-view" data-active="true">
+
+    <div class="course-title-block">
+      <h1 class="course-title" id="course-title"></h1>
+      <span class="course-code" id="course-code"></span>
+    </div>
+
+    <div id="alerts-wrap" class="alerts-wrap"></div>
+
+    <div class="roster-scroll">
+      <table class="roster-table" id="roster-table">
+        <thead>
+          <tr id="roster-head-row"></tr>
+        </thead>
+        <tbody id="roster-body"></tbody>
+      </table>
+    </div>
+
+    <p class="legend">
+      <span class="legend-item"><span class="dot dot-locked"></span> Bloqueado</span>
+      <span class="legend-item"><span class="dot dot-training"></span> En entrenamiento</span>
+      <span class="legend-item"><span class="dot dot-competent"></span> Competente</span>
+      <span class="legend-item"><span class="dot dot-mastery"></span> Maestría</span>
+    </p>
+  </section>
+
+  <!-- ============ VISTA 2: DETALLE DE ESTUDIANTE ============ -->
+  <section id="view-detail" class="docente-view">
+    <button class="link-back detail-back" id="btn-back-roster">← Volver al curso</button>
+
+    <div class="detail-header">
+      <div class="avatar-lg" id="detail-avatar"></div>
+      <div>
+        <h2 class="detail-name" id="detail-name"></h2>
+        <span class="detail-sub">Progreso por competencia</span>
+      </div>
+    </div>
+
+    <div class="detail-competencies" id="detail-competencies"></div>
+
+    <div class="detail-columns">
+      <div class="detail-block">
+        <h3 class="detail-block-title">Tipos de error frecuentes</h3>
+        <div id="detail-errors" class="error-bars"></div>
+      </div>
+      <div class="detail-block">
+        <h3 class="detail-block-title">Actividad reciente</h3>
+        <ul id="detail-activity" class="activity-list"></ul>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<script src="js/mock-data.js"></script>
+<script src="js/docente.js"></script>
+</body>
+</html>

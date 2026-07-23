@@ -267,6 +267,15 @@ button{ font-family:inherit; }
   background:repeating-linear-gradient(var(--line-strong) 0 4px, transparent 4px 8px);
 }
 
+.teacher-link{
+  align-self:center;
+  font-size:13px;
+  color:var(--text-faint);
+  text-decoration:none;
+  transition:color .15s var(--ease);
+}
+.teacher-link:hover{ color:var(--pulse); }
+
 /* ============================================================
    Training
    ============================================================ */
