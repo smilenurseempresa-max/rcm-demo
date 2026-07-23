@@ -134,10 +134,20 @@ button{ font-family:inherit; }
   max-width:420px;
 }
 
-.pulse-line{
+.pulse-wrap{
+  position:relative;
   width:min(70vw, 320px);
   height:64px;
   margin-bottom:8px;
+}
+.pulse-wrap .pulse-line{
+  position:absolute;
+  inset:0;
+  width:100%;
+  height:100%;
+  margin-bottom:0;
+}
+.pulse-line{
   overflow:visible;
 }
 .pulse-line path{
@@ -147,6 +157,39 @@ button{ font-family:inherit; }
   stroke-linecap:round;
   stroke-linejoin:round;
   filter:drop-shadow(0 0 6px var(--pulse-dim));
+}
+
+.ecg-monitor{
+  position:absolute;
+  inset:0;
+  width:100%;
+  height:100%;
+  overflow:hidden;
+  opacity:0;
+}
+.ecg-track{
+  height:100%;
+  width:auto;
+  display:block;
+}
+.ecg-wave{
+  fill:none;
+  stroke:var(--pulse);
+  stroke-width:3;
+  stroke-linecap:round;
+  stroke-linejoin:round;
+  filter:drop-shadow(0 0 6px var(--pulse-dim));
+}
+.ecg-label{
+  font-family:var(--font-mono);
+  font-size:13px;
+  fill:var(--text-muted);
+  letter-spacing:.02em;
+}
+
+.wordmark-reveal{
+  display:flex;
+  justify-content:center;
 }
 
 .wordmark{
