@@ -137,8 +137,12 @@ button{ font-family:inherit; }
 .pulse-wrap{
   position:relative;
   width:min(70vw, 320px);
-  height:64px;
-  margin-bottom:8px;
+  height:96px;
+  margin-bottom:20px;
+  border-radius:16px;
+  background-image:
+    repeating-linear-gradient(0deg, rgba(23,227,168,.05) 0, rgba(23,227,168,.05) 1px, transparent 1px, transparent 24px),
+    repeating-linear-gradient(90deg, rgba(23,227,168,.05) 0, rgba(23,227,168,.05) 1px, transparent 1px, transparent 24px);
 }
 .pulse-wrap .pulse-line{
   position:absolute;
@@ -175,16 +179,29 @@ button{ font-family:inherit; }
 .ecg-wave{
   fill:none;
   stroke:var(--pulse);
-  stroke-width:3;
+  stroke-width:4.5;
   stroke-linecap:round;
   stroke-linejoin:round;
-  filter:drop-shadow(0 0 6px var(--pulse-dim));
+  filter:url(#ecg-glow);
 }
-.ecg-label{
+.ecg-dot{
+  fill:#B6FCE6;
+  filter:url(#ecg-glow);
+}
+
+.formula-field{
+  position:absolute;
+  inset:0;
+  pointer-events:none;
+  z-index:1;
+}
+.formula{
+  position:absolute;
   font-family:var(--font-mono);
   font-size:13px;
-  fill:var(--text-muted);
-  letter-spacing:.02em;
+  color:var(--pulse);
+  opacity:0;
+  animation:formula-fade 4.5s ease-in-out infinite;
 }
 
 .wordmark-reveal{
@@ -193,10 +210,10 @@ button{ font-family:inherit; }
 }
 
 .wordmark{
-  font-family:var(--font-display);
-  font-size:clamp(48px, 14vw, 72px);
-  font-weight:700;
-  letter-spacing:.06em;
+  font-family:'Michroma', var(--font-display);
+  font-size:clamp(34px, 10vw, 46px);
+  font-weight:400;
+  letter-spacing:.1em;
   margin:0 0 28px 0;
   color:var(--text);
   opacity:0;

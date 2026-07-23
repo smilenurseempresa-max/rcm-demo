@@ -33,22 +33,35 @@
   to{ opacity:1; }
 }
 .ecg-track{
-  animation:ecg-scroll 9s linear infinite;
+  animation:ecg-scroll 3.4s linear infinite;
 }
 @keyframes ecg-scroll{
   from{ transform:translateX(0); }
-  to{ transform:translateX(-800px); }
+  to{ transform:translateX(-400px); }
+}
+.ecg-dot{
+  animation:ecg-dot-glow 3.4s linear infinite;
+}
+@keyframes ecg-dot-glow{
+  0%,100%{ opacity:.6; }
+  50%{ opacity:1; }
 }
 
-/* 2. Wordmark fades up after the pulse settles, then keeps a gentle heartbeat */
-.wordmark{
-  animation:
-    fade-up .8s var(--ease) forwards 1.3s,
-    heartbeat-scale 2.4s ease-in-out infinite 2.3s;
+/* 1d. Formulas fade in and out around the monitor */
+.formula{
+  animation-name:formula-fade;
+  animation-timing-function:ease-in-out;
+  animation-iteration-count:infinite;
 }
-@keyframes heartbeat-scale{
-  0%,100%{ transform:scale(1); }
-  50%{ transform:scale(1.035); }
+@keyframes formula-fade{
+  0%,100%{ opacity:0; }
+  45%,55%{ opacity:1; }
+}
+
+/* 2. Wordmark fades up after the pulse settles */
+.wordmark{
+  animation:fade-up .8s var(--ease) forwards;
+  animation-delay:1.3s;
 }
 
 /* 3. Tagline lines, staggered */

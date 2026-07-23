@@ -6,7 +6,7 @@
 <title>RCM · Entrenador de Razonamiento Clínico Matemático</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500&family=Michroma&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="css/style.css">
 <link rel="stylesheet" href="css/animations.css">
 </head>
@@ -17,10 +17,39 @@
   <!-- ============ PANTALLA 0 · SPLASH ============ -->
   <section class="screen" id="screen-splash" data-active="true">
     <div class="splash-stage">
-      <svg class="pulse-line" viewBox="0 0 600 120" preserveAspectRatio="none">
-        <path id="pulse-path" d="M0,60 L180,60 L205,60 L220,15 L240,105 L260,30 L280,60 L340,60 L360,60 L600,60"/>
-      </svg>
-      <h1 class="wordmark">RCM</h1>
+      <div class="pulse-wrap">
+        <div class="formula-field" aria-hidden="true">
+          <span class="formula" style="top:0; left:8%; animation-delay:0s;">C × V = D</span>
+          <span class="formula" style="top:0; right:6%; animation-delay:1.5s;">mg/mL</span>
+          <span class="formula" style="bottom:0; left:4%; animation-delay:3s;">√ 100</span>
+          <span class="formula" style="bottom:0; right:2%; animation-delay:2.2s;">÷ 5</span>
+        </div>
+        <svg class="pulse-line" id="pulse-intro" viewBox="0 0 600 120" preserveAspectRatio="none">
+          <path id="pulse-path" d="M0,60 L180,60 L205,60 L220,15 L240,105 L260,30 L280,60 L340,60 L360,60 L600,60"/>
+        </svg>
+        <div class="ecg-monitor" id="ecg-monitor">
+          <svg class="ecg-track" width="800" height="120" viewBox="0 0 800 120" preserveAspectRatio="xMidYMid meet">
+            <defs>
+              <filter id="ecg-glow" x="-50%" y="-50%" width="200%" height="200%">
+                <feGaussianBlur stdDeviation="4" result="blur"/>
+                <feMerge>
+                  <feMergeNode in="blur"/>
+                  <feMergeNode in="SourceGraphic"/>
+                </feMerge>
+              </filter>
+            </defs>
+            <g class="ecg-unit">
+              <path class="ecg-wave" d="M0,50 L140,50 L158,96 L190,4 L280,4 L296,50 L400,50"/>
+              <circle class="ecg-dot" cx="296" cy="50" r="5"/>
+            </g>
+            <g class="ecg-unit" transform="translate(400,0)">
+              <path class="ecg-wave" d="M0,50 L140,50 L158,96 L190,4 L280,4 L296,50 L400,50"/>
+              <circle class="ecg-dot" cx="296" cy="50" r="5"/>
+            </g>
+          </svg>
+        </div>
+      </div>
+      <div class="wordmark-reveal"><h1 class="wordmark">RCM</h1></div>
       <p class="tagline" id="tagline">
         <span class="line" data-delay="0">La seguridad del paciente</span>
         <span class="line" data-delay="1">comienza</span>
