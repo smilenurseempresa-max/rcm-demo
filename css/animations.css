@@ -1,0 +1,110 @@
+/* ============================================================
+   Splash sequence
+   ============================================================ */
+
+/* 1. ECG pulse draws itself */
+#pulse-path{
+  stroke-dasharray:900;
+  stroke-dashoffset:900;
+  animation:draw-pulse 1.4s var(--ease) forwards;
+}
+@keyframes draw-pulse{
+  to{ stroke-dashoffset:0; }
+}
+
+/* 2. Wordmark fades up after the pulse settles */
+.wordmark{
+  animation:fade-up .8s var(--ease) forwards;
+  animation-delay:1.3s;
+}
+
+/* 3. Tagline lines, staggered */
+.tagline .line{
+  animation:fade-up .7s var(--ease) forwards;
+}
+.tagline .line[data-delay="0"]{ animation-delay:2.1s; }
+.tagline .line[data-delay="1"]{ animation-delay:2.6s; }
+.tagline .line[data-delay="2"]{ animation-delay:3.05s; }
+
+/* 4. Button appears last */
+.reveal-late{
+  opacity:0;
+  animation:fade-up .6s var(--ease) forwards;
+  animation-delay:3.9s;
+}
+
+@keyframes fade-up{
+  from{ opacity:0; transform:translateY(10px); }
+  to{ opacity:1; transform:translateY(0); }
+}
+
+/* Gentle ambient heartbeat once idle, gated by JS adding .idle-pulse */
+.pulse-line.idle-pulse path{
+  animation:heartbeat 2.6s ease-in-out infinite;
+}
+@keyframes heartbeat{
+  0%,100%{ opacity:1; }
+  50%{ opacity:.55; }
+}
+
+/* ============================================================
+   Training micro-interactions
+   ============================================================ */
+.case-card{
+  animation:card-in .45s var(--ease);
+}
+@keyframes card-in{
+  from{ opacity:0; transform:scale(.96); }
+  to{ opacity:1; transform:scale(1); }
+}
+
+.question-block{
+  animation:fade-up .4s var(--ease);
+}
+
+.bar-segment.grow{
+  transform:scaleX(1);
+}
+
+/* Correct / wrong pulse feedback */
+@keyframes flash-correct{
+  0%{ box-shadow:0 0 0 0 rgba(23,227,168,0); }
+  40%{ box-shadow:0 0 0 6px rgba(23,227,168,0.18); }
+  100%{ box-shadow:0 0 0 0 rgba(23,227,168,0); }
+}
+.option.is-correct{ animation:flash-correct .5s var(--ease); }
+
+@keyframes shake{
+  0%,100%{ transform:translateX(0); }
+  25%{ transform:translateX(-6px); }
+  75%{ transform:translateX(6px); }
+}
+.option.is-wrong{ animation:shake .32s var(--ease); }
+
+/* ============================================================
+   Result stars reveal
+   ============================================================ */
+.result-row{
+  opacity:0;
+  animation:fade-up .5s var(--ease) forwards;
+}
+.result-row:nth-child(1){ animation-delay:.1s; }
+.result-row:nth-child(2){ animation-delay:.3s; }
+.result-row:nth-child(3){ animation-delay:.5s; }
+.result-row:nth-child(4){ animation-delay:.7s; }
+
+.mastery-banner{
+  opacity:0;
+  animation:fade-up .6s var(--ease) forwards;
+  animation-delay:1s;
+}
+.result-closing{
+  opacity:0;
+  animation:fade-up .6s var(--ease) forwards;
+  animation-delay:1.3s;
+}
+.result-stage .btn{
+  opacity:0;
+  animation:fade-up .6s var(--ease) forwards;
+  animation-delay:1.6s;
+}
