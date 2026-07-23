@@ -9,6 +9,18 @@
 <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500&family=Michroma&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="css/style.css">
 <link rel="stylesheet" href="css/animations.css">
+
+<!-- PWA -->
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#0A0F1E">
+<link rel="icon" type="image/png" sizes="32x32" href="icons/icon-32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="icons/icon-16.png">
+
+<!-- iOS: agregar a inicio como app -->
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="RCM">
+<link rel="apple-touch-icon" href="icons/icon-180.png">
 </head>
 <body>
 
@@ -136,7 +148,7 @@
 
       <div class="calc-input-block" id="calc-input-block" hidden>
         <label class="calc-label" for="calc-input">Tu respuesta (mL)</label>
-        <input type="text" inputmode="numeric" autocomplete="off" class="calc-input" id="calc-input" placeholder="?">
+        <input type="text" inputmode="decimal" autocomplete="off" class="calc-input" id="calc-input" placeholder="?">
         <button class="btn btn-primary" id="btn-check-calc">Confirmar</button>
       </div>
 
