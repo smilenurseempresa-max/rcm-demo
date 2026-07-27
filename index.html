@@ -6,248 +6,66 @@
 <title>RCM · Entrenador de Razonamiento Clínico Matemático</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500&family=Michroma&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="css/style.css">
 <link rel="stylesheet" href="css/animations.css">
 
-<!-- PWA -->
-<link rel="manifest" href="manifest.json">
-<meta name="theme-color" content="#0A0F1E">
-<link rel="icon" type="image/png" sizes="32x32" href="icons/icon-32.png">
-<link rel="icon" type="image/png" sizes="16x16" href="icons/icon-16.png">
+<!-- ===== Splash RCM: logo + pulsos (incrustado aquí para no tocar style.css) ===== -->
+<style>
+  .logo-stage{
+    position:relative;
+    width:min(78vw,320px);
+    aspect-ratio:928 / 942;   /* proporción de tu PNG */
+    margin:0 auto;
+  }
+  .rcm-logo{ display:block; width:100%; height:100%; }
 
-<!-- iOS: agregar a inicio como app -->
-<meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="apple-mobile-web-app-title" content="RCM">
-<link rel="apple-touch-icon" href="icons/icon-180.png">
+  .logo-pulse{
+    position:absolute; z-index:3;
+    width:24%; aspect-ratio:1/1; border-radius:50%;
+    transform:translate(-50%,-50%) scale(.5);
+    background:radial-gradient(circle, rgba(166,236,255,.9) 0%, rgba(166,236,255,0) 62%);
+    mix-blend-mode:screen;
+    opacity:0; pointer-events:none;
+    animation:rcm-pulse 2s ease-in-out infinite;
+  }
+  /* orden del barrido: cerebro → gráfico → escudo → lupa */
+  .p-brain  { left:50%; top:16%; animation-delay:0s;    }
+  .p-grafico{ left:66%; top:31%; animation-delay:.45s;  }
+  .p-escudo { left:50%; top:47%; animation-delay:.9s;   }
+  .p-lupa   { left:34%; top:31%; animation-delay:1.35s; }
+
+  @keyframes rcm-pulse{
+    0%,100%{ opacity:0;   transform:translate(-50%,-50%) scale(.5); }
+    50%    { opacity:.95; transform:translate(-50%,-50%) scale(1.15); }
+  }
+  @media (prefers-reduced-motion:reduce){
+    .logo-pulse{ animation:none; opacity:.3; }
+  }
+</style>
 </head>
 <body>
 
 <div id="app">
 
   <!-- ============ PANTALLA 0 · SPLASH ============ -->
-<!DOCTYPE html>
-<html lang="es">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>RCM · Vista previa del splash</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600&family=IBM+Plex+Mono:wght@500&display=swap" rel="stylesheet">
-<style>
-  :root{
-    --bg:#0A0F1A;
-    --text:#EAF1FF;
-    --text-muted:#9FB0CC;
-    --text-faint:#5C6E8C;
-    --pulse:#17E3A8;
-    --ease:cubic-bezier(.22,.61,.36,1);
-    --glow:166,236,255;      /* cian por defecto (RGB) */
-    --pulse-dur:2s;
-    --step:.45s;             /* separación entre pulsos (0s = simultáneo) */
-  }
-  *{box-sizing:border-box;margin:0;padding:0;}
-  html,body{height:100%;}
-  body{
-    background:radial-gradient(120% 90% at 50% 8%, #101a2e 0%, var(--bg) 60%);
-    color:var(--text);
-    font-family:'Inter',system-ui,sans-serif;
-    display:flex;flex-direction:column;align-items:center;justify-content:center;
-    min-height:100vh;gap:28px;padding:40px 16px;
-  }
-
-  /* ---------- SPLASH ---------- */
-  .splash-stage{display:flex;flex-direction:column;align-items:center;gap:26px;text-align:center;}
-
-  .logo-stage{position:relative;width:min(70vw,300px);}
-  .diamond{position:relative;width:100%;aspect-ratio:1/1;z-index:2;}
-  .diamond svg{width:100%;height:100%;display:block;}
-
-  /* pulsos luminosos — mismos parámetros; sin delay = simultáneos */
-  .logo-pulse{
-    position:absolute;z-index:3;
-    width:34%;aspect-ratio:1/1;border-radius:50%;
-    transform:translate(-50%,-50%) scale(.5);
-    background:radial-gradient(circle, rgba(var(--glow),.9) 0%, rgba(var(--glow),0) 62%);
-    mix-blend-mode:screen;opacity:0;pointer-events:none;
-    animation:rcm-pulse var(--pulse-dur) ease-in-out infinite;
-    animation-delay:calc(var(--i,0) * var(--step));
-  }
-  /* orden del barrido (horario): cerebro → gráfico → escudo → lupa */
-  .p-brain  {left:50%;top:26%;--i:0;}
-  .p-grafico{left:74%;top:50%;--i:1;}
-  .p-escudo {left:50%;top:74%;--i:2;}
-  .p-lupa   {left:26%;top:50%;--i:3;}
-
-  @keyframes rcm-pulse{
-    0%,100%{opacity:0;transform:translate(-50%,-50%) scale(.5);}
-    50%    {opacity:.95;transform:translate(-50%,-50%) scale(1.15);}
-  }
-
-  .wordmark{
-    font-family:'Space Grotesk',sans-serif;font-weight:700;
-    font-size:clamp(44px,13vw,64px);letter-spacing:.06em;
-    background:linear-gradient(180deg,#ffffff,#9db6d8);
-    -webkit-background-clip:text;background-clip:text;color:transparent;
-    line-height:1;margin-top:4px;
-  }
-  .subtitle{
-    font-family:'Inter',sans-serif;font-weight:600;
-    font-size:clamp(11px,3vw,13px);letter-spacing:.22em;
-    color:#7FA6DE;text-transform:uppercase;margin-top:8px;
-  }
-  .tagline{color:var(--text-muted);font-size:14px;line-height:1.6;max-width:22ch;}
-  .btn{
-    font-family:'Inter',sans-serif;font-weight:600;font-size:15px;
-    color:#04140E;background:var(--pulse);border:none;border-radius:999px;
-    padding:13px 34px;cursor:pointer;transition:transform .15s var(--ease),box-shadow .2s var(--ease);
-    box-shadow:0 0 0 rgba(23,227,168,0);
-  }
-  .btn:hover{transform:translateY(-1px);box-shadow:0 8px 26px rgba(23,227,168,.28);}
-
-  /* ---------- Controles de la demo (no van en tu app) ---------- */
-  .controls{
-    display:flex;flex-wrap:wrap;gap:18px;justify-content:center;align-items:center;
-    border-top:1px solid rgba(255,255,255,.08);padding-top:22px;width:min(92vw,520px);
-  }
-  .ctl{display:flex;flex-direction:column;gap:8px;align-items:center;}
-  .ctl-label{font-family:'IBM Plex Mono',monospace;font-size:10px;letter-spacing:.12em;color:var(--text-faint);text-transform:uppercase;}
-  .chips{display:flex;gap:6px;}
-  .chip{
-    font-family:'Inter',sans-serif;font-size:12px;color:var(--text-muted);
-    background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.12);
-    border-radius:999px;padding:6px 13px;cursor:pointer;transition:.15s var(--ease);
-  }
-  .chip[data-on="true"]{color:#04140E;background:var(--text);border-color:var(--text);font-weight:600;}
-  .demo-note{font-family:'IBM Plex Mono',monospace;font-size:10.5px;color:var(--text-faint);text-align:center;letter-spacing:.03em;}
-</style>
-</head>
-<body>
-
-  <div class="splash-stage">
-    <div class="logo-stage">
-      <div class="diamond">
-        <!-- Reconstrucción del rombo solo para la demo. En tu app va tu PNG real. -->
-        <svg viewBox="0 0 400 400" xmlns="http://www.w3.org/2000/svg">
-          <defs>
-            <linearGradient id="gN" x1="0" y1="0" x2="1" y2="1">
-              <stop offset="0" stop-color="#2E86D6"/><stop offset="1" stop-color="#1B5AA6"/>
-            </linearGradient>
-            <linearGradient id="gW" x1="0" y1="0" x2="1" y2="1">
-              <stop offset="0" stop-color="#1F9FB0"/><stop offset="1" stop-color="#17798C"/>
-            </linearGradient>
-            <linearGradient id="gE" x1="0" y1="0" x2="1" y2="1">
-              <stop offset="0" stop-color="#3A5AC0"/><stop offset="1" stop-color="#2C3E9E"/>
-            </linearGradient>
-            <linearGradient id="gS" x1="0" y1="0" x2="1" y2="1">
-              <stop offset="0" stop-color="#6A4BD8"/><stop offset="1" stop-color="#4B37B6"/>
-            </linearGradient>
-            <linearGradient id="rGrad" x1="0" y1="0" x2="0" y2="1">
-              <stop offset="0" stop-color="#ffffff"/><stop offset="1" stop-color="#B9C9E6"/>
-            </linearGradient>
-          </defs>
-
-          <!-- Tiles (con gaps oscuros como divisores) -->
-          <g stroke="#0A0F1A" stroke-width="9" stroke-linejoin="round">
-            <path d="M200 32 L284 116 L200 200 L116 116 Z" fill="url(#gN)"/>
-            <path d="M32 200 L116 116 L200 200 L116 284 Z" fill="url(#gW)"/>
-            <path d="M368 200 L284 284 L200 200 L284 116 Z" fill="url(#gE)"/>
-            <path d="M200 368 L116 284 L200 200 L284 284 Z" fill="url(#gS)"/>
-          </g>
-
-          <!-- R central -->
-          <text x="204" y="252" text-anchor="middle" font-family="Space Grotesk, sans-serif"
-                font-weight="700" font-size="200" fill="url(#rGrad)" opacity="0.96">R</text>
-
-          <!-- Íconos blancos -->
-          <g fill="none" stroke="#ffffff" stroke-width="5" stroke-linecap="round" stroke-linejoin="round">
-            <!-- cerebro -->
-            <g transform="translate(200,102)">
-              <path d="M-13 -3 a13 15 0 0 1 26 0 a11 11 0 0 1 -5 17 a10 8 0 0 1 -16 0 a11 11 0 0 1 -5 -17 z"/>
-              <path d="M0 -15 L0 17"/>
-              <path d="M-7 -5 q4 4 0 8 M7 -5 q-4 4 0 8"/>
-            </g>
-            <!-- lupa -->
-            <g transform="translate(102,200)">
-              <circle cx="-3" cy="-3" r="12"/>
-              <path d="M6 6 L16 16"/>
-            </g>
-            <!-- gráfico de barras -->
-            <g transform="translate(298,200)">
-              <path d="M-15 14 L-15 6"/><path d="M-5 14 L-5 -2"/>
-              <path d="M5 14 L5 -9"/><path d="M15 14 L15 -15"/>
-            </g>
-            <!-- escudo con check -->
-            <g transform="translate(200,296)">
-              <path d="M0 -16 L14 -10 L14 3 Q14 15 0 20 Q-14 15 -14 3 L-14 -10 Z"/>
-              <path d="M-6 0 L-1 6 L8 -6"/>
-            </g>
-          </g>
-        </svg>
+  <section class="screen" id="screen-splash" data-active="true">
+    <div class="splash-stage">
+      <div class="logo-stage">
+        <img class="rcm-logo" src="assets/rcm-logo.png"
+             alt="RCM · Entrenador de Razonamiento Clínico">
+        <span class="logo-pulse p-brain"></span>
+        <span class="logo-pulse p-lupa"></span>
+        <span class="logo-pulse p-grafico"></span>
+        <span class="logo-pulse p-escudo"></span>
       </div>
-
-      <span class="logo-pulse p-brain"></span>
-      <span class="logo-pulse p-lupa"></span>
-      <span class="logo-pulse p-grafico"></span>
-      <span class="logo-pulse p-escudo"></span>
+      <p class="tagline" id="tagline">
+        <span class="line" data-delay="0">La seguridad del paciente</span>
+        <span class="line" data-delay="1">comienza en tu forma de pensar.</span>
+      </p>
+      <button class="btn btn-primary reveal-late" id="btn-start">Comenzar</button>
     </div>
-
-    <div>
-      <div class="wordmark">RCM</div>
-      <div class="subtitle">Entrenador de Razonamiento Clínico</div>
-    </div>
-
-    <p class="tagline">La seguridad del paciente comienza en tu forma de pensar.</p>
-    <button class="btn">Comenzar</button>
-  </div>
-
-  <div class="controls">
-    <div class="ctl">
-      <span class="ctl-label">Color del pulso</span>
-      <div class="chips" id="color-chips">
-        <button class="chip" data-glow="166,236,255" data-on="true">Cian</button>
-        <button class="chip" data-glow="23,227,168">Verde</button>
-        <button class="chip" data-glow="255,255,255">Blanco</button>
-      </div>
-    </div>
-    <div class="ctl">
-      <span class="ctl-label">Secuencia</span>
-      <div class="chips" id="step-chips">
-        <button class="chip" data-step="0s">A la vez</button>
-        <button class="chip" data-step=".45s" data-on="true">Uno a uno</button>
-      </div>
-    </div>
-    <div class="ctl">
-      <span class="ctl-label">Velocidad</span>
-      <div class="chips" id="speed-chips">
-        <button class="chip" data-dur="2.8s">Lento</button>
-        <button class="chip" data-dur="2s" data-on="true">Normal</button>
-        <button class="chip" data-dur="1.3s">Rápido</button>
-      </div>
-    </div>
-  </div>
-  <p class="demo-note">Vista previa · el rombo es una reconstrucción; en tu app va tu PNG real</p>
-
-  <script>
-    const root = document.documentElement;
-    function wire(id, attr, cssVar){
-      const wrap = document.getElementById(id);
-      wrap.addEventListener('click', e => {
-        const chip = e.target.closest('.chip'); if(!chip) return;
-        wrap.querySelectorAll('.chip').forEach(c => c.dataset.on = 'false');
-        chip.dataset.on = 'true';
-        root.style.setProperty(cssVar, chip.dataset[attr]);
-      });
-    }
-    wire('color-chips','glow','--glow');
-    wire('speed-chips','dur','--pulse-dur');
-    wire('step-chips','step','--step');
-  </script>
-</body>
-</html>
-
+  </section>
 
   <!-- ============ PANTALLA 1 · HOME ============ -->
   <section class="screen" id="screen-home">
@@ -326,7 +144,7 @@
 
       <div class="calc-input-block" id="calc-input-block" hidden>
         <label class="calc-label" for="calc-input">Tu respuesta (mL)</label>
-        <input type="text" inputmode="decimal" autocomplete="off" class="calc-input" id="calc-input" placeholder="?">
+        <input type="text" inputmode="numeric" autocomplete="off" class="calc-input" id="calc-input" placeholder="?">
         <button class="btn btn-primary" id="btn-check-calc">Confirmar</button>
       </div>
 
