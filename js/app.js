@@ -17,7 +17,6 @@ const state = {
 
 /* ---------- Splash ---------- */
 document.getElementById("btn-start").addEventListener("click", () => {
-  document.querySelector(".pulse-line").classList.add("idle-pulse");
   goToScreen("screen-home");
 });
 
