@@ -194,3 +194,588 @@
 <body>
 
 <!-- Barra de accesibilidad (siempre visible) -->
+<div class="a11y" role="group" aria-label="Opciones de accesibilidad">
+  <span aria-hidden="true">Texto</span>
+  <button id="text-toggle" aria-label="Cambiar tamaño del texto">A+</button>
+  <button id="contrast-toggle" aria-pressed="false" aria-label="Activar alto contraste">Contraste</button>
+</div>
+
+<div class="wrap">
+
+  <!-- ============ SPLASH ============ -->
+  <section class="screen active" id="s-splash" aria-label="Bienvenida">
+    <div class="logo-stage" style="margin-top:4px">
+      <img class="rcm-logo" src="rcm-logo.png" alt="RCM · Entrenador de Razonamiento Clínico">
+      <span class="logo-pulse p-brain"></span>
+      <span class="logo-pulse p-lupa"></span>
+      <span class="logo-pulse p-grafico"></span>
+      <span class="logo-pulse p-escudo"></span>
+    </div>
+    <p class="lead" style="margin-top:26px">La seguridad del paciente comienza en tu forma de pensar.</p>
+    <div style="text-align:center"><button class="btn" onclick="go('s-acceso')">Comenzar</button></div>
+  </section>
+
+  <!-- ============ ACCESO ============ -->
+  <section class="screen" id="s-acceso" aria-labelledby="h-acceso">
+    <div class="brand"><div class="mark">RCM</div><div class="sub">Entrenador de Razonamiento Clínico</div></div>
+    <p class="lead" id="h-acceso">Entrena el razonamiento detrás del cálculo, no la fórmula de memoria. ¿Cómo entras hoy?</p>
+    <div class="choices two">
+      <button class="choice" onclick="go('s-carrera')">
+        <span class="ic" aria-hidden="true">🎓</span>
+        <h2>Soy estudiante</h2>
+        <p>Practica según tu carrera y asignatura.</p>
+      </button>
+      <button class="choice" onclick="go('s-doc-login')">
+        <span class="ic" aria-hidden="true">🧑‍🏫</span>
+        <h2>Soy docente</h2>
+        <p>Revisa avances y crea ejercicios.</p>
+      </button>
+    </div>
+    <p class="microcalc" style="margin-top:26px">Diseño universal · funciona con lector de pantalla · ajusta texto y contraste arriba a la derecha</p>
+  </section>
+
+  <!-- ============ CARRERA ============ -->
+  <section class="screen" id="s-carrera" aria-labelledby="h-carrera">
+    <button class="back" onclick="go('s-acceso')">← Volver</button>
+    <h1 id="h-carrera" style="margin-bottom:6px">Elige tu carrera</h1>
+    <p class="lead" style="margin:6px 0 24px">Cada carrera entrena las habilidades que necesita en la práctica.</p>
+    <div class="choices two">
+      <button class="choice" onclick="pickCarrera('enfermeria')">
+        <span class="ic" aria-hidden="true">🩺</span>
+        <h2>Enfermería</h2>
+        <p>Cálculo de dosis y balance hídrico.</p>
+      </button>
+      <button class="choice" onclick="pickCarrera('tecmed')">
+        <span class="ic" aria-hidden="true">🔬</span>
+        <h2>Tecnología Médica</h2>
+        <p>Concentraciones, molaridad, absorbancia.</p>
+      </button>
+    </div>
+  </section>
+
+  <!-- ============ LOGIN ESTUDIANTE ============ -->
+  <section class="screen" id="s-login" aria-labelledby="h-login">
+    <button class="back" onclick="go('s-carrera')">← Volver</button>
+    <h1 id="h-login" style="margin-bottom:6px">Ingreso de estudiante</h1>
+    <p class="lead" id="login-carrera" style="margin:6px 0 22px"></p>
+    <div class="card">
+      <div class="field">
+        <label for="email">Correo institucional</label>
+        <input id="email" type="email" inputmode="email" autocomplete="email" placeholder="tunombre@alumnos.ust.cl">
+        <p class="hint">Debe terminar en <b id="dom-hint">ust.cl</b> — así confirmamos que eres estudiante y guardamos tu avance.</p>
+      </div>
+      <div class="field">
+        <label for="asig">Asignatura</label>
+        <select id="asig">
+          <option value="">Selecciona…</option>
+          <option>Farmacología</option>
+          <option>Bioquímica clínica</option>
+          <option>Fundamentos de Enfermería</option>
+          <option>Laboratorio Clínico</option>
+          <option>Otra</option>
+        </select>
+      </div>
+      <p class="err-msg" id="login-err" role="alert"></p>
+      <button class="btn" style="width:100%" onclick="doLogin()">Entrar</button>
+    </div>
+  </section>
+
+  <!-- ============ MENÚ DE TEMAS ============ -->
+  <section class="screen" id="s-temas" aria-labelledby="h-temas">
+    <button class="back" onclick="go('s-acceso')">← Salir</button>
+    <p class="eyebrow" id="temas-user"></p>
+    <h1 id="h-temas" style="margin:4px 0 18px">Elige un tema para entrenar</h1>
+    <div id="temas-list"></div>
+  </section>
+
+  <!-- ============ ENTRENAMIENTO ============ -->
+  <section class="screen" id="s-train" aria-labelledby="h-train">
+    <button class="back" onclick="go('s-temas')">← Temas</button>
+    <div class="progress">
+      <div class="track"><div class="fill" id="fill"></div></div>
+      <span class="count" id="count"></span>
+    </div>
+    <h1 id="h-train" class="eyebrow" style="margin-bottom:10px" id="train-topic"></h1>
+    <div class="case"><p class="q" id="q"></p></div>
+    <div class="options" id="options"></div>
+    <div class="num" id="num" hidden>
+      <input id="num-input" type="text" inputmode="decimal" autocomplete="off" placeholder="Tu respuesta">
+      <button class="btn" onclick="checkNum()">Confirmar</button>
+    </div>
+    <div id="feedback" aria-live="polite"></div>
+    <p class="microcalc">Sin calculadora. Razona cada paso.</p>
+  </section>
+
+  <!-- ============ RESULTADO ============ -->
+  <section class="screen" id="s-result" aria-labelledby="h-result">
+    <p class="eyebrow">RCM analizó tu razonamiento</p>
+    <h1 id="h-result" style="margin:6px 0 16px">Resultado</h1>
+    <div id="result-rows"></div>
+    <div class="mastery"><div class="eyebrow">Dominio</div><div class="v" id="mastery">—%</div></div>
+    <p class="lead">Hoy entrenaste una habilidad.<br>No memorizaste una fórmula.</p>
+    <div style="display:flex; gap:10px; justify-content:center; flex-wrap:wrap">
+      <button class="btn ghost" onclick="go('s-temas')">Otro tema</button>
+      <button class="btn" onclick="go('s-acceso')">Terminar</button>
+    </div>
+  </section>
+
+  <!-- ============ LOGIN DOCENTE ============ -->
+  <section class="screen" id="s-doc-login" aria-labelledby="h-doc-login">
+    <button class="back" onclick="go('s-acceso')">← Volver</button>
+    <h1 id="h-doc-login" style="margin-bottom:6px">Ingreso docente</h1>
+    <p class="lead" style="margin:6px 0 22px">Accede al tablero de tu curso y al generador de ejercicios.</p>
+    <div class="card">
+      <div class="field">
+        <label for="doc-email">Correo institucional docente</label>
+        <input id="doc-email" type="email" placeholder="docente@ust.cl">
+      </div>
+      <p class="err-msg" id="doc-err" role="alert"></p>
+      <button class="btn" style="width:100%" onclick="doDocLogin()">Entrar</button>
+    </div>
+  </section>
+
+  <!-- ============ PANEL DOCENTE ============ -->
+  <section class="screen" id="s-doc" aria-labelledby="h-doc">
+    <button class="back" onclick="go('s-acceso')">← Salir</button>
+    <h1 id="h-doc" style="margin-bottom:14px">Panel docente</h1>
+    <div class="tabs" role="tablist">
+      <button class="tab" role="tab" aria-selected="true" onclick="docTab('t-avances',this)">Avances del curso</button>
+      <button class="tab" role="tab" aria-selected="false" onclick="docTab('t-crear',this)">Crear ejercicio</button>
+    </div>
+
+    <!-- Avances -->
+    <div id="t-avances">
+      <p class="lead" style="text-align:left; margin:0 0 14px">Quién practicó y —lo importante— <b>en qué tipo de error</b>, para saber qué reforzar en clase.</p>
+      <div class="card" style="overflow-x:auto">
+        <table class="roster">
+          <thead><tr><th>Estudiante</th><th>Tema</th><th>Dominio</th><th>Error más común</th></tr></thead>
+          <tbody id="roster-body"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Crear ejercicio -->
+    <div id="t-crear" hidden>
+      <p class="lead" style="text-align:left; margin:0 0 14px">Arma un caso <b>sin programar</b>: completa los campos y la app lo convierte en ejercicio.</p>
+      <div class="card">
+        <div class="row2">
+          <div class="field"><label for="c-carrera">Carrera</label>
+            <select id="c-carrera"><option>Enfermería</option><option>Tecnología Médica</option></select></div>
+          <div class="field"><label for="c-tema">Tema</label>
+            <input id="c-tema" placeholder="Ej: Concentraciones %m/v"></div>
+        </div>
+        <div class="field"><label for="c-q">Pregunta / enunciado</label>
+          <textarea id="c-q" placeholder="Ej: ¿Cuántos gramos de NaCl hay en 500 mL de suero al 0,9% m/v?"></textarea></div>
+        <div class="field"><label for="c-tipo">Tipo de respuesta</label>
+          <select id="c-tipo" onchange="toggleTipo()">
+            <option value="choice">Opción múltiple</option>
+            <option value="input">Respuesta numérica</option>
+          </select></div>
+
+        <div id="c-choices">
+          <div class="field"><label>Opciones (marca la correcta)</label>
+            <div id="opt-rows"></div>
+          </div>
+        </div>
+        <div id="c-num" hidden>
+          <div class="field"><label for="c-answer">Respuesta correcta (número)</label>
+            <input id="c-answer" type="text" inputmode="decimal" placeholder="Ej: 4.5"></div>
+        </div>
+
+        <div class="field"><label for="c-error">Categoría del error (para el docente)</label>
+          <input id="c-error" placeholder="Ej: confundió %m/v con %m/m"></div>
+        <div class="field"><label for="c-prof">Mensaje del científico loco (retroalimentación)</label>
+          <textarea id="c-prof" placeholder="Ej: ¡Ajá! %m/v son gramos por 100 mL, no por 100 g. Ese detalle cambia toda tu dilución…"></textarea></div>
+
+        <p class="err-msg" id="c-err" role="alert"></p>
+        <div style="display:flex; gap:10px; flex-wrap:wrap">
+          <button class="btn ghost" onclick="previewCase()">Vista previa</button>
+          <button class="btn" onclick="saveCase()">Guardar caso</button>
+        </div>
+      </div>
+
+      <div id="preview-wrap" style="margin-top:16px"></div>
+
+      <h2 style="font-size:1.1em; margin:22px 0 10px">Casos creados</h2>
+      <div id="saved-list"><p class="microcalc" style="text-align:left">Aún no has creado casos en esta sesión.</p></div>
+
+      <div class="note">
+        <b>🤖 Próximamente — asistencia con IA.</b> Sube una guía en Word, PDF o JPG y la IA
+        <b>pre-llena estos campos</b> con casos propuestos; tú los revisas, corriges y apruebas antes de publicar.
+        En salud, la última palabra siempre es del docente. (Requiere un servidor con llave de IA — se activa en la siguiente etapa.)
+        <div style="margin-top:10px"><button class="btn ghost" disabled>Subir guía (IA) — próximamente</button></div>
+      </div>
+    </div>
+  </section>
+
+</div>
+
+<script>
+/* ====================== NAVEGACIÓN ====================== */
+function go(id){
+  document.querySelectorAll('.screen').forEach(s=>s.classList.toggle('active', s.id===id));
+  window.scrollTo({top:0, behavior:'instant'});
+  const first = document.querySelector('#'+id+' h1, #'+id+' .brand');
+  if(first) first.setAttribute('tabindex','-1'), first.focus({preventScroll:true});
+}
+
+/* ====================== ACCESIBILIDAD ====================== */
+const htmlEl = document.documentElement;
+document.getElementById('text-toggle').addEventListener('click', e=>{
+  let t = (+htmlEl.dataset.text % 3) + 1;   // 1→2→3→1
+  htmlEl.dataset.text = t;
+  e.target.textContent = t===1?'A+':t===2?'A++':'A';
+});
+document.getElementById('contrast-toggle').addEventListener('click', e=>{
+  const on = htmlEl.dataset.contrast!=='alto';
+  htmlEl.dataset.contrast = on?'alto':'normal';
+  e.target.setAttribute('aria-pressed', on);
+});
+
+/* ====================== ESTADO ====================== */
+const DOMINIO = 'ust.cl';   // dominio de correo institucional para validar el acceso
+const app = { carrera:null, email:null, asignatura:null, tema:null, step:0, scores:{} };
+
+/* ====================== CONTENIDO ====================== */
+const TEMAS = {
+  enfermeria: [
+    { id:'dosis',   label:'Cálculo de dosis', estado:'activo' },
+    { id:'balance', label:'Balance hídrico',  estado:'activo' },
+    { id:'goteo',   label:'Goteo e infusión', estado:'activo' },
+  ],
+  tecmed: [
+    { id:'conc',    label:'Concentraciones (%m/m, %m/v, %v/v)', estado:'activo' },
+    { id:'gl',      label:'g/L y mg/dL',            estado:'activo' },
+    { id:'convert', label:'Conversión de unidades', estado:'activo' },
+    { id:'molar',   label:'Molaridad',              estado:'activo' },
+    { id:'densidad',label:'Densidad',               estado:'activo' },
+    { id:'absorb',  label:'Regla de 3 con absorbancia', estado:'activo' },
+  ]
+};
+
+const CASOS = {
+  dosis: [
+    { q:'Tienes una ampolla de 500 mg en 5 mL. ¿Qué representa el 500?', type:'choice', cat:'Comprensión',
+      opts:[{t:'Los mg totales que hay en la ampolla',c:true},{t:'La dosis a administrar',c:false},{t:'El volumen a inyectar',c:false}],
+      prof:'¡Cuidado! 500 es lo que HAY, no lo que das. Confundir eso es el primer paso para una sobredosis.' },
+    { q:'Debes administrar 250 mg. ¿Qué necesitas encontrar?', type:'choice', cat:'Interpretación',
+      opts:[{t:'mg',c:false},{t:'mL',c:true},{t:'gotas/min',c:false}],
+      prof:'La jeringa mide mL, no mg. Si buscas la unidad equivocada, no sabrás cuánto cargar.' },
+    { q:'¿Cuánto hay en 1 mL?', type:'choice', cat:'Estrategia',
+      opts:[{t:'500 mg',c:false},{t:'100 mg',c:true},{t:'50 mg',c:false},{t:'250 mg',c:false}],
+      prof:'500 mg ÷ 5 mL = 100 mg/mL. Este número es tu llave para todo lo que sigue.' },
+    { q:'Entonces, ¿cuántos mL administras para dar 250 mg?', type:'input', cat:'Resultado', answer:2.5,
+      prof:'250 mg ÷ 100 mg/mL = 2,5 mL. Un factor 10 aquí (25 mL) sería un error grave.' },
+  ],
+  balance: [
+    { q:'En un balance hídrico, ¿cuál de estos es un INGRESO?', type:'choice', cat:'Comprensión',
+      opts:[{t:'Diuresis',c:false},{t:'Suero endovenoso',c:true},{t:'Deposiciones',c:false}],
+      prof:'El suero entra al paciente → ingreso. La diuresis sale → egreso. No los mezcles de columna.' },
+    { q:'¿Y cuál de estos es un EGRESO?', type:'choice', cat:'Comprensión',
+      opts:[{t:'Agua que bebió',c:false},{t:'Medicamentos endovenosos',c:false},{t:'Pérdidas insensibles',c:true}],
+      prof:'Las pérdidas insensibles (sudor, respiración) salen del cuerpo → egreso. Se olvidan seguido y descuadran el balance.' },
+    { q:'Recibió: 1000 mL de suero + 500 mL de agua + 200 mL en medicamentos. ¿Total de ingresos (mL)?', type:'input', cat:'Interpretación', answer:1700,
+      prof:'Sumas todo lo que ENTRA: 1000 + 500 + 200 = 1700 mL.' },
+    { q:'Eliminó: 1200 mL de diuresis + 100 mL deposiciones + 500 mL insensibles. ¿Total de egresos (mL)?', type:'input', cat:'Interpretación', answer:1800,
+      prof:'1200 + 100 + 500 = 1800 mL. Si dejas fuera las insensibles, el balance te queda falsamente positivo.' },
+    { q:'Balance = ingresos − egresos. Con 1700 de ingreso y 1800 de egreso, ¿cuál es el balance (mL)?', type:'input', cat:'Resultado', answer:-100,
+      prof:'1700 − 1800 = −100 mL. Negativo significa que perdió más de lo que recibió: ojo con la deshidratación.' },
+  ],
+  goteo: [
+    { q:'En un macrogotero, el factor 20 gtt/mL significa que…', type:'choice', cat:'Comprensión',
+      opts:[{t:'20 gotas equivalen a 1 mL',c:true},{t:'pasan 20 mL por hora',c:false},{t:'caen 20 gotas por minuto',c:false}],
+      prof:'El factor gota dice cuántas gotas forman 1 mL. En macrogotero, 20 gotas = 1 mL.' },
+    { q:'Debes pasar 720 mL en 8 horas. ¿Cuántos minutos son 8 horas?', type:'input', cat:'Estrategia', answer:480,
+      prof:'8 h × 60 = 480 min. El goteo se calcula por minuto, no por hora.' },
+    { q:'¿Cuántas gotas caen en total? (720 mL × 20 gtt/mL)', type:'input', cat:'Estrategia', answer:14400,
+      prof:'720 × 20 = 14.400 gotas en total. Este es el volumen ya convertido a gotas.' },
+    { q:'Entonces, ¿a cuántas gotas por minuto debes dejar el goteo? (14.400 ÷ 480)', type:'input', cat:'Resultado', answer:30,
+      prof:'14.400 ÷ 480 = 30 gtt/min. Si te equivocas en el factor, el suero pasa muy rápido o muy lento.' },
+  ],
+  conc: [
+    { q:'Una solución al 0,9% m/v significa…', type:'choice', cat:'Comprensión',
+      opts:[{t:'0,9 g por cada 100 mL',c:true},{t:'0,9 g por cada 100 g',c:false},{t:'0,9 mL por cada 100 mL',c:false}],
+      prof:'%m/v = masa en volumen → gramos por 100 mL. La "v" es de volumen.' },
+    { q:'¿Y un porcentaje %m/m qué expresa?', type:'choice', cat:'Comprensión',
+      opts:[{t:'gramos de soluto por 100 g de solución',c:true},{t:'gramos por 100 mL',c:false},{t:'moles por litro',c:false}],
+      prof:'%m/m = masa en masa → gramos de soluto por 100 g de solución. Se usa en sólidos, cremas y pomadas.' },
+    { q:'¿Y %v/v?', type:'choice', cat:'Comprensión',
+      opts:[{t:'mL de soluto por 100 mL de solución',c:true},{t:'gramos por 100 mL',c:false},{t:'gramos por 100 g',c:false}],
+      prof:'%v/v = volumen en volumen → mL de soluto por 100 mL. Típico en alcoholes y desinfectantes.' },
+    { q:'¿Cuántos gramos de NaCl hay en 500 mL de suero al 0,9% m/v?', type:'input', cat:'Resultado', answer:4.5,
+      prof:'0,9 g por 100 mL → en 500 mL: 0,9 × 5 = 4,5 g. Regla de 3 pura.' },
+    { q:'¿Cuántos mL de alcohol puro hay en 200 mL de solución al 70% v/v?', type:'input', cat:'Resultado', answer:140,
+      prof:'70 mL por 100 mL → en 200 mL: 70 × 2 = 140 mL de alcohol.' },
+  ],
+  gl: [
+    { q:'1 g/L, ¿a cuántos mg/dL equivale?', type:'choice', cat:'Comprensión',
+      opts:[{t:'100 mg/dL',c:true},{t:'10 mg/dL',c:false},{t:'1000 mg/dL',c:false}],
+      prof:'1 g = 1000 mg y 1 L = 10 dL → 1000 ÷ 10 = 100 mg/dL.' },
+    { q:'Para pasar de g/L a mg/dL, ¿qué operación haces?', type:'choice', cat:'Estrategia',
+      opts:[{t:'Multiplicar por 100',c:true},{t:'Dividir por 100',c:false},{t:'Multiplicar por 10',c:false}],
+      prof:'g/L × 100 = mg/dL. Es el puente entre las dos formas de informar una glicemia.' },
+    { q:'Una glicemia de 1,26 g/L, ¿cuántos mg/dL son?', type:'input', cat:'Resultado', answer:126,
+      prof:'1,26 × 100 = 126 mg/dL.' },
+    { q:'Al revés: 90 mg/dL, ¿cuántos g/L son?', type:'input', cat:'Resultado', answer:0.9,
+      prof:'90 ÷ 100 = 0,9 g/L. De unidad chica a grande, divides.' },
+  ],
+  convert: [
+    { q:'1 gramo, ¿a cuántos miligramos equivale?', type:'choice', cat:'Comprensión',
+      opts:[{t:'1000 mg',c:true},{t:'100 mg',c:false},{t:'10 mg',c:false}],
+      prof:'1 g = 1000 mg. Aquí nacen casi todos los errores de "factor 1000".' },
+    { q:'Para pasar de mg a g, ¿qué haces?', type:'choice', cat:'Estrategia',
+      opts:[{t:'Dividir por 1000',c:true},{t:'Multiplicar por 1000',c:false},{t:'Dividir por 100',c:false}],
+      prof:'mg ÷ 1000 = g. De unidad chica a grande, siempre divides.' },
+    { q:'¿Cuántos mg son 0,25 g?', type:'input', cat:'Resultado', answer:250,
+      prof:'0,25 × 1000 = 250 mg.' },
+    { q:'¿Cuántos microgramos (µg) son 2 mg?', type:'input', cat:'Resultado', answer:2000,
+      prof:'1 mg = 1000 µg → 2 mg = 2000 µg.' },
+    { q:'¿Cuántos mL hay en 1 dL?', type:'input', cat:'Resultado', answer:100,
+      prof:'1 dL = 100 mL. Clave para trabajar con resultados en mg/dL.' },
+  ],
+  molar: [
+    { q:'La molaridad (M) mide…', type:'choice', cat:'Comprensión',
+      opts:[{t:'moles de soluto por litro de solución',c:true},{t:'gramos por litro',c:false},{t:'moles por gramo',c:false}],
+      prof:'Molaridad = moles de soluto por litro de solución (mol/L).' },
+    { q:'Para pasar de gramos a moles, ¿qué dato necesitas?', type:'choice', cat:'Estrategia',
+      opts:[{t:'La masa molar',c:true},{t:'El volumen',c:false},{t:'La densidad',c:false}],
+      prof:'moles = masa (g) ÷ masa molar (g/mol). Sin la masa molar no puedes convertir.' },
+    { q:'¿Cuántos moles hay en 58,5 g de NaCl (masa molar 58,5 g/mol)?', type:'input', cat:'Resultado', answer:1,
+      prof:'58,5 ÷ 58,5 = 1 mol. La masa molar del NaCl es un clásico de laboratorio.' },
+    { q:'Si disuelves 1 mol de NaCl en 2 L, ¿cuál es la molaridad (M)?', type:'input', cat:'Resultado', answer:0.5,
+      prof:'1 mol ÷ 2 L = 0,5 M (mol/L).' },
+  ],
+  densidad: [
+    { q:'La densidad relaciona…', type:'choice', cat:'Comprensión',
+      opts:[{t:'masa y volumen',c:true},{t:'masa y moles',c:false},{t:'volumen y tiempo',c:false}],
+      prof:'Densidad = masa ÷ volumen (g/mL). Te dice cuánto pesa un volumen dado.' },
+    { q:'Si conoces densidad y volumen, ¿cómo obtienes la masa?', type:'choice', cat:'Estrategia',
+      opts:[{t:'masa = densidad × volumen',c:true},{t:'masa = densidad ÷ volumen',c:false},{t:'masa = volumen ÷ densidad',c:false}],
+      prof:'Despejas de d = m/V → masa = densidad × volumen.' },
+    { q:'Un líquido tiene densidad 1,2 g/mL. ¿Cuánto pesan 50 mL?', type:'input', cat:'Resultado', answer:60,
+      prof:'1,2 g/mL × 50 mL = 60 g.' },
+    { q:'200 g de solución ocupan 250 mL. ¿Cuál es su densidad (g/mL)?', type:'input', cat:'Resultado', answer:0.8,
+      prof:'200 ÷ 250 = 0,8 g/mL.' },
+  ],
+  absorb: [
+    { q:'En espectrofotometría, la absorbancia y la concentración son…', type:'choice', cat:'Comprensión',
+      opts:[{t:'directamente proporcionales',c:true},{t:'inversamente proporcionales',c:false},{t:'independientes entre sí',c:false}],
+      prof:'A mayor concentración, mayor absorbancia, en proporción directa (Ley de Beer). Por eso funciona la regla de 3.' },
+    { q:'Un estándar de 100 mg/dL da absorbancia 0,40. Tu muestra da 0,30. ¿Qué método usas?', type:'choice', cat:'Estrategia',
+      opts:[{t:'Regla de 3 (proporción directa)',c:true},{t:'Restar las absorbancias',c:false},{t:'Multiplicar por 2',c:false}],
+      prof:'Como son proporcionales, se resuelve con regla de 3 directa.' },
+    { q:'Con esos datos, ¿qué concentración tiene tu muestra (mg/dL)?', type:'input', cat:'Resultado', answer:75,
+      prof:'(100 mg/dL × 0,30) ÷ 0,40 = 75 mg/dL. Ese es el resultado real de tu paciente.' },
+    { q:'Otro caso: estándar 200 mg/dL da absorbancia 0,50; la muestra da 0,20. ¿Concentración (mg/dL)?', type:'input', cat:'Resultado', answer:80,
+      prof:'(200 × 0,20) ÷ 0,50 = 80 mg/dL.' },
+  ],
+};
+
+/* ====================== FLUJO ESTUDIANTE ====================== */
+function pickCarrera(c){
+  app.carrera = c;
+  document.getElementById('login-carrera').textContent =
+    (c==='enfermeria'?'Enfermería':'Tecnología Médica') + ' · ingresa para guardar tu avance.';
+  document.getElementById('dom-hint').textContent = DOMINIO;
+  go('s-login');
+}
+function doLogin(){
+  const email = document.getElementById('email').value.trim().toLowerCase();
+  const asig = document.getElementById('asig').value;
+  const err = document.getElementById('login-err');
+  if(!email.includes('@') || !email.endsWith(DOMINIO)){ err.textContent = 'Usa tu correo institucional (…@'+DOMINIO+').'; return; }
+  if(!asig){ err.textContent = 'Selecciona tu asignatura.'; return; }
+  err.textContent = '';
+  app.email = email; app.asignatura = asig;
+  renderTemas();
+  go('s-temas');
+}
+function renderTemas(){
+  document.getElementById('temas-user').textContent =
+    (app.carrera==='enfermeria'?'Enfermería':'Tec Médica') + ' · ' + app.asignatura + ' · ' + app.email;
+  const list = document.getElementById('temas-list'); list.innerHTML='';
+  TEMAS[app.carrera].forEach(t=>{
+    const b = document.createElement('button');
+    b.className='topic'; b.disabled = t.estado!=='activo';
+    b.innerHTML = `<span class="t-name">${t.label}</span>
+      <span class="t-tag ${t.estado==='activo'?'on':''}">${t.estado==='activo'?'Disponible':'Próximamente'}</span>`;
+    if(t.estado==='activo') b.onclick = ()=>startTema(t.id, t.label);
+    list.appendChild(b);
+  });
+}
+
+/* ====================== MOTOR ====================== */
+function startTema(id,label){
+  app.tema=id; app.step=0; app.scores={};
+  document.getElementById('train-topic').textContent = label;
+  renderStep();
+  go('s-train');
+}
+function renderStep(){
+  const steps = CASOS[app.tema];
+  const step = steps[app.step];
+  step._tries = 0;
+  document.getElementById('fill').style.width = (app.step/steps.length*100)+'%';
+  document.getElementById('count').textContent = `Paso ${app.step+1} de ${steps.length}`;
+  document.getElementById('q').textContent = step.q;
+  document.getElementById('feedback').innerHTML='';
+  const opts = document.getElementById('options');
+  const num = document.getElementById('num');
+  opts.innerHTML='';
+  if(step.type==='choice'){
+    num.hidden=true; opts.hidden=false;
+    step.opts.forEach(o=>{
+      const b=document.createElement('button');
+      b.className='option'; b.textContent=o.t;
+      b.onclick=()=>choose(b,o,step);
+      opts.appendChild(b);
+    });
+  } else {
+    opts.hidden=true; num.hidden=false;
+    const inp=document.getElementById('num-input'); inp.value=''; inp.disabled=false; inp.focus();
+  }
+}
+function choose(btn,o,step){
+  if(o.c){
+    document.querySelectorAll('#options .option').forEach(x=>x.classList.add('done'));
+    btn.classList.add('ok');
+    score(step);
+    setTimeout(next, 850);
+  } else {
+    btn.classList.add('no','done'); btn.disabled=true;
+    step._tries++;
+    showProf(step);
+  }
+}
+function checkNum(){
+  const steps=CASOS[app.tema], step=steps[app.step];
+  const inp=document.getElementById('num-input');
+  const val=parseFloat(inp.value.trim().replace(',','.'));
+  if(!isNaN(val) && Math.abs(val-step.answer)<0.01){
+    inp.disabled=true; score(step);
+    document.getElementById('feedback').innerHTML='';
+    setTimeout(next, 700);
+  } else {
+    step._tries++; showProf(step);
+  }
+}
+function showProf(step){
+  document.getElementById('feedback').innerHTML =
+    `<div class="prof"><span class="avatar" aria-hidden="true">🥽</span>
+      <div class="bubble"><span class="who">Dr. Cálculo dice:</span>${step.prof}</div></div>`;
+}
+function score(step){
+  const s = step._tries===0?100:step._tries===1?70:40;
+  (app.scores[step.cat] = app.scores[step.cat]||[]).push(s);
+}
+function next(){
+  const steps=CASOS[app.tema];
+  app.step++;
+  if(app.step<steps.length) renderStep();
+  else finish();
+}
+function finish(){
+  const rows=document.getElementById('result-rows'); rows.innerHTML='';
+  const cats=Object.keys(app.scores); let all=[];
+  cats.forEach(cat=>{
+    const arr=app.scores[cat]; const avg=arr.reduce((a,b)=>a+b,0)/arr.length; all.push(avg);
+    const stars=Math.max(1,Math.round(avg/20));
+    let s=''; for(let i=0;i<5;i++) s+= i<stars?'<b>★</b>':'<span class="off">★</span>';
+    rows.innerHTML += `<div class="rrow"><span>${cat}</span><span class="stars">${s}</span></div>`;
+  });
+  const mastery = all.length?Math.round(all.reduce((a,b)=>a+b,0)/all.length):0;
+  document.getElementById('mastery').textContent = mastery+'%';
+  go('s-result');
+}
+
+/* ====================== FLUJO DOCENTE ====================== */
+function doDocLogin(){
+  const email=document.getElementById('doc-email').value.trim().toLowerCase();
+  const err=document.getElementById('doc-err');
+  if(!email.includes('@') || !email.endsWith(DOMINIO)){ err.textContent='Usa tu correo institucional (…@'+DOMINIO+').'; return; }
+  err.textContent=''; renderRoster(); go('s-doc');
+}
+function docTab(id,btn){
+  document.getElementById('t-avances').hidden = id!=='t-avances';
+  document.getElementById('t-crear').hidden = id!=='t-crear';
+  document.querySelectorAll('#s-doc .tab').forEach(t=>t.setAttribute('aria-selected','false'));
+  btn.setAttribute('aria-selected','true');
+}
+const ROSTER=[
+  {n:'María Fernanda Soto',t:'Cálculo de dosis',d:88,e:'Razón invertida',s:'competent'},
+  {n:'Joaquín Pérez Bravo',t:'Concentraciones %m/v',d:64,e:'Confundió %m/v con %m/m',s:'training'},
+  {n:'Antonia Reyes Muñoz',t:'Regla de 3 (absorbancia)',d:55,e:'No despejó la proporción',s:'training'},
+  {n:'Benjamín Torres Lagos',t:'Balance hídrico',d:92,e:'—',s:'mastery'},
+  {n:'Catalina Vidal Rojas',t:'Cálculo de dosis',d:40,e:'Error de factor 10',s:'training'},
+];
+function renderRoster(){
+  const b=document.getElementById('roster-body'); b.innerHTML='';
+  ROSTER.forEach(r=>{
+    b.innerHTML += `<tr>
+      <td><span class="dot ${r.s}"></span> ${r.n}</td>
+      <td>${r.t}</td><td>${r.d}%</td>
+      <td>${r.e==='—'?'—':'<span class="pill">'+r.e+'</span>'}</td></tr>`;
+  });
+}
+
+/* ---- Generador de casos (formulario) ---- */
+const CASOS_CREADOS=[];
+function optRows(){
+  const wrap=document.getElementById('opt-rows'); wrap.innerHTML='';
+  for(let i=0;i<4;i++){
+    wrap.innerHTML += `<div style="display:flex; gap:8px; align-items:center; margin-bottom:8px">
+      <input type="radio" name="correct" value="${i}" aria-label="Marcar opción ${i+1} como correcta" ${i===0?'checked':''}>
+      <input type="text" id="opt${i}" placeholder="Opción ${i+1}" style="flex:1; background:var(--surface); border:1px solid var(--line-2); border-radius:10px; padding:10px 12px; color:var(--text); font-family:var(--font-body)">
+    </div>`;
+  }
+}
+function toggleTipo(){
+  const t=document.getElementById('c-tipo').value;
+  document.getElementById('c-choices').hidden = t!=='choice';
+  document.getElementById('c-num').hidden = t!=='input';
+}
+function collectCase(){
+  const tipo=document.getElementById('c-tipo').value;
+  const c={ carrera:document.getElementById('c-carrera').value, tema:document.getElementById('c-tema').value.trim(),
+    q:document.getElementById('c-q').value.trim(), type:tipo,
+    cat:document.getElementById('c-error').value.trim(), prof:document.getElementById('c-prof').value.trim() };
+  if(tipo==='choice'){
+    const idx=+document.querySelector('input[name=correct]:checked').value;
+    c.opts=[]; for(let i=0;i<4;i++){ const v=document.getElementById('opt'+i).value.trim(); if(v) c.opts.push({t:v,c:i===idx}); }
+  } else { c.answer=document.getElementById('c-answer').value.trim(); }
+  return c;
+}
+function validCase(c){
+  if(!c.tema||!c.q){ return 'Completa al menos el tema y la pregunta.'; }
+  if(c.type==='choice' && (c.opts.length<2 || !c.opts.some(o=>o.c))) return 'Agrega al menos 2 opciones y marca la correcta.';
+  if(c.type==='input' && !c.answer) return 'Indica la respuesta numérica correcta.';
+  return '';
+}
+function previewCase(){
+  const c=collectCase(); const err=validCase(c);
+  document.getElementById('c-err').textContent=err; if(err) return;
+  let body = c.type==='choice'
+    ? c.opts.map(o=>`<div class="option done ${o.c?'ok':''}" style="margin-bottom:6px">${o.t}${o.c?' ✓':''}</div>`).join('')
+    : `<div class="option done ok">Respuesta correcta: ${c.answer}</div>`;
+  document.getElementById('preview-wrap').innerHTML =
+    `<div class="card"><p class="eyebrow">Vista previa del caso</p>
+      <p class="q" style="font-family:var(--font-head); font-size:1.1em; margin:8px 0 12px">${c.q}</p>
+      ${body}
+      ${c.prof?`<div class="prof" style="margin-top:12px"><span class="avatar">🥽</span><div class="bubble"><span class="who">Dr. Cálculo dice:</span>${c.prof}</div></div>`:''}</div>`;
+}
+function saveCase(){
+  const c=collectCase(); const err=validCase(c);
+  document.getElementById('c-err').textContent=err; if(err) return;
+  CASOS_CREADOS.push(c);
+  const list=document.getElementById('saved-list'); list.innerHTML='';
+  CASOS_CREADOS.forEach((x,i)=> list.innerHTML += `<div class="saved"><b>${i+1}. ${x.tema}</b> — ${x.carrera}<br><span style="color:var(--muted)">${x.q}</span></div>`);
+  document.getElementById('preview-wrap').innerHTML='';
+  ['c-tema','c-q','c-error','c-prof','c-answer'].forEach(id=>{const el=document.getElementById(id); if(el) el.value='';});
+  for(let i=0;i<4;i++){const el=document.getElementById('opt'+i); if(el) el.value='';}
+}
+
+/* init */
+optRows();
+</script>
+</body>
+</html>
