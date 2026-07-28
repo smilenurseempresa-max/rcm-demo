@@ -295,7 +295,7 @@
       <div class="track"><div class="fill" id="fill"></div></div>
       <span class="count" id="count"></span>
     </div>
-    <h1 id="h-train" class="eyebrow" style="margin-bottom:10px" id="train-topic"></h1>
+    <h1 id="h-train" class="eyebrow" style="margin-bottom:10px"></h1>
     <div class="case"><p class="q" id="q"></p></div>
     <div class="options" id="options"></div>
     <div class="num" id="num" hidden>
@@ -607,7 +607,7 @@ function renderTemas(){
 /* ====================== MOTOR ====================== */
 function startTema(id,label){
   app.tema=id; app.step=0; app.scores={};
-  document.getElementById('train-topic').textContent = label;
+  document.getElementById('h-train').textContent = label;
   renderStep();
   go('s-train');
 }
