@@ -558,6 +558,50 @@ const TEMAS = {
 };
 
 const CASOS = {
+  suma: [
+    { q:'¿Cuánto es 8 + 6?', type:'choice', cat:'Operación',
+      opts:[{t:'12',c:false},{t:'14',c:true},{t:'16',c:false}],
+      prof:'8 + 6 = 14. Sumar es juntar cantidades — la base de todo lo que viene.' },
+    { q:'¿Cuánto es 25 + 17?', type:'input', cat:'Operación', answer:42,
+      prof:'25 + 17 = 42. Suma las unidades (5+7=12), anota 2 y llevas 1.' },
+    { q:'Un paciente tomó 3 comprimidos en la mañana y 2 en la tarde. ¿Cuántos en total?', type:'input', cat:'Aplicación', answer:5,
+      prof:'3 + 2 = 5 comprimidos. Así llevas la cuenta de lo administrado.' },
+    { q:'Pasaron 500 mL de suero en la mañana y 350 mL en la tarde. ¿Total (mL)?', type:'input', cat:'Aplicación', answer:850,
+      prof:'500 + 350 = 850 mL. Esto es el primer paso del balance hídrico.' },
+  ],
+  resta: [
+    { q:'¿Cuánto es 15 − 6?', type:'choice', cat:'Operación',
+      opts:[{t:'8',c:false},{t:'9',c:true},{t:'11',c:false}],
+      prof:'15 − 6 = 9. Restar es quitar o comparar cantidades.' },
+    { q:'¿Cuánto es 50 − 23?', type:'input', cat:'Operación', answer:27,
+      prof:'50 − 23 = 27.' },
+    { q:'Una caja tenía 20 ampollas y usaste 8. ¿Cuántas quedan?', type:'input', cat:'Aplicación', answer:12,
+      prof:'20 − 8 = 12 ampollas. Restar te dice cuánto queda en stock.' },
+    { q:'Ingresó 1000 mL y eliminó 700 mL. ¿Cuánto retuvo (mL)?', type:'input', cat:'Aplicación', answer:300,
+      prof:'1000 − 700 = 300 mL. Restar ingresos y egresos es el corazón del balance hídrico.' },
+  ],
+  multi: [
+    { q:'¿Cuánto es 6 × 4?', type:'choice', cat:'Operación',
+      opts:[{t:'20',c:false},{t:'24',c:true},{t:'28',c:false}],
+      prof:'6 × 4 = 24. Multiplicar es sumar grupos iguales.' },
+    { q:'¿Cuánto es 12 × 5?', type:'input', cat:'Operación', answer:60,
+      prof:'12 × 5 = 60.' },
+    { q:'Cada ampolla trae 4 mg y necesitas 3 ampollas. ¿Cuántos mg juntas?', type:'input', cat:'Aplicación', answer:12,
+      prof:'4 × 3 = 12 mg. Multiplicar junta dosis iguales rápido.' },
+    { q:'Das 2 comprimidos, 3 veces al día. ¿Cuántos comprimidos al día?', type:'input', cat:'Aplicación', answer:6,
+      prof:'2 × 3 = 6 comprimidos al día.' },
+  ],
+  divi: [
+    { q:'¿Cuánto es 20 ÷ 4?', type:'choice', cat:'Operación',
+      opts:[{t:'4',c:false},{t:'5',c:true},{t:'6',c:false}],
+      prof:'20 ÷ 4 = 5. Dividir es repartir en partes iguales.' },
+    { q:'¿Cuánto es 96 ÷ 8?', type:'input', cat:'Operación', answer:12,
+      prof:'96 ÷ 8 = 12.' },
+    { q:'Repartes 12 mg en 4 dosis iguales. ¿Cuánto por dosis?', type:'input', cat:'Aplicación', answer:3,
+      prof:'12 ÷ 4 = 3 mg por dosis.' },
+    { q:'Tienes 500 mg en 5 mL. ¿Cuántos mg hay en 1 mL?', type:'input', cat:'Aplicación', answer:100,
+      prof:'500 ÷ 5 = 100 mg/mL. ¡Esto es exactamente el cálculo de dosis que viene después!' },
+  ],
   dosis: [
     { q:'Tienes una ampolla de 500 mg en 5 mL. ¿Qué representa el 500?', type:'choice', cat:'Comprensión',
       opts:[{t:'Los mg totales que hay en la ampolla',c:true},{t:'La dosis a administrar',c:false},{t:'El volumen a inyectar',c:false}],
@@ -697,13 +741,21 @@ function doLogin(){
 
 /* ====================== NIVELES / PROGRESO ====================== */
 const UMBRAL = 60;   // % de dominio para superar un nivel
+const FASE0 = [
+  { tema:'suma',  nombre:'Sumar sin miedo',    label:'Fase 0 · Suma' },
+  { tema:'resta', nombre:'Quitar y comparar',  label:'Fase 0 · Resta' },
+  { tema:'multi', nombre:'Grupos que crecen',  label:'Fase 0 · Multiplicación' },
+  { tema:'divi',  nombre:'Repartir en partes', label:'Fase 0 · División' },
+];
 const NIVELES = {
   enfermeria: [
+    ...FASE0,
     { tema:'dosis',   nombre:'Primeros pasos',   label:'Cálculo de dosis' },
     { tema:'balance', nombre:'En equilibrio',     label:'Balance hídrico' },
     { tema:'goteo',   nombre:'A contrarreloj',    label:'Goteo e infusión' },
   ],
   tecmed: [
+    ...FASE0,
     { tema:'conc',    nombre:'El punto de partida',    label:'Concentraciones (%m/v, m/m, v/v)' },
     { tema:'gl',      nombre:'Cambio de escala',       label:'g/L y mg/dL' },
     { tema:'convert', nombre:'Traductor de unidades',  label:'Conversión de unidades' },
