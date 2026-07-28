@@ -602,6 +602,24 @@ const CASOS = {
     { q:'Tienes 500 mg en 5 mL. ¿Cuántos mg hay en 1 mL?', type:'input', cat:'Aplicación', answer:100,
       prof:'500 ÷ 5 = 100 mg/mL. ¡Esto es exactamente el cálculo de dosis que viene después!' },
   ],
+  regla3: [
+    { q:'¿Qué es una regla de tres?', type:'choice', cat:'Comprensión',
+      opts:[{t:'Una forma de hallar un valor que falta cuando dos cantidades son proporcionales',c:true},{t:'Una suma de tres números',c:false},{t:'Una división entre tres',c:false}],
+      prof:'La regla de 3 encuentra un dato que falta cuando dos cantidades cambian juntas, en proporción.' },
+    { q:'¿En cuál de estas situaciones SÍ usarías regla de 3?', type:'choice', cat:'Interpretación',
+      opts:[{t:'Si 2 ampollas cuestan $1000, ¿cuánto cuestan 5 ampollas?',c:true},{t:'La edad de un paciente',c:false},{t:'El nombre de un medicamento',c:false}],
+      prof:'Se usa cuando al aumentar una cantidad, la otra aumenta en la misma proporción.' },
+    { q:'2 comprimidos tienen 500 mg. Para saber cuántos mg hay en 5, ¿cómo ordenas la regla de 3?', type:'choice', cat:'Estrategia',
+      opts:[{t:'2 comprimidos → 500 mg  y  5 comprimidos → x',c:true},{t:'500 mg → 2 comprimidos  y  x → 5 mg',c:false},{t:'2 → 5  y  500 → x',c:false}],
+      prof:'Alinea lo que se corresponde: comprimidos con comprimidos, mg con mg. Ese orden es media pelea ganada.' },
+    { q:'Ya ordenada, ¿qué haces para despejar la x?', type:'choice', cat:'Estrategia',
+      opts:[{t:'Multiplicar en cruz y luego dividir',c:true},{t:'Sumar todo',c:false},{t:'Restar los pares',c:false}],
+      prof:'Multiplicas en cruz (500 × 5) y divides por el que queda (2). Por eso primero aprendiste a multiplicar y dividir.' },
+    { q:'Resuélvela: si 2 comprimidos = 500 mg, ¿cuántos mg hay en 5 comprimidos?', type:'input', cat:'Resultado', answer:1250,
+      prof:'(500 × 5) ÷ 2 = 1250 mg. ¡Acabas de armar y resolver una regla de 3 completa!' },
+    { q:'Otra: si 1 mL tiene 20 gotas, ¿cuántas gotas hay en 3 mL?', type:'input', cat:'Resultado', answer:60,
+      prof:'(20 × 3) ÷ 1 = 60 gotas. Esta misma lógica está en dosis, goteo y absorbancia.' },
+  ],
   dosis: [
     { q:'Tienes una ampolla de 500 mg en 5 mL. ¿Qué representa el 500?', type:'choice', cat:'Comprensión',
       opts:[{t:'Los mg totales que hay en la ampolla',c:true},{t:'La dosis a administrar',c:false},{t:'El volumen a inyectar',c:false}],
@@ -746,6 +764,7 @@ const FASE0 = [
   { tema:'resta', nombre:'Quitar y comparar',  label:'Fase 0 · Resta' },
   { tema:'multi', nombre:'Grupos que crecen',  label:'Fase 0 · Multiplicación' },
   { tema:'divi',  nombre:'Repartir en partes', label:'Fase 0 · División' },
+  { tema:'regla3',nombre:'La regla de oro',    label:'Fase 0 · Regla de tres' },
 ];
 const NIVELES = {
   enfermeria: [
