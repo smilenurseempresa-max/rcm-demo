@@ -179,6 +179,12 @@
   .option.no{ border-color:var(--danger); background:rgba(255,107,107,.10); }
   .option.done{ cursor:default; }
   .num{ display:flex; gap:10px; flex-wrap:wrap; align-items:center; }
+  .build-box{ font-family:var(--font-mono); font-size:1.05em; line-height:2.4; text-align:center;
+    background:var(--surface-2); border:1px solid var(--line); border-radius:14px; padding:20px 16px; margin-bottom:14px; }
+  .blank{ background:var(--surface); border:1px solid var(--line-2); border-radius:8px; padding:5px 10px;
+    color:var(--text); font-family:var(--font-mono); font-size:1em; margin:0 3px; cursor:pointer; }
+  .blank.ok{ border-color:var(--pulse); color:var(--pulse); }
+  .blank.no{ border-color:var(--danger); color:var(--danger); }
   .num input{ flex:1; background:var(--surface); border:1px solid var(--line-2); border-radius:12px;
     padding:12px 14px; color:var(--text); font-size:1.1em; font-family:var(--font-mono); }
   .microcalc{ text-align:center; color:var(--faint); font-size:.8em; margin-top:16px; }
@@ -559,46 +565,46 @@ const TEMAS = {
 
 const CASOS = {
   suma: [
-    { q:'¿Cuánto es 8 + 6?', type:'choice', cat:'Operación',
-      opts:[{t:'12',c:false},{t:'14',c:true},{t:'16',c:false}],
-      prof:'8 + 6 = 14. Sumar es juntar cantidades — la base de todo lo que viene.' },
-    { q:'¿Cuánto es 25 + 17?', type:'input', cat:'Operación', answer:42,
-      prof:'25 + 17 = 42. Suma las unidades (5+7=12), anota 2 y llevas 1.' },
-    { q:'Un paciente tomó 3 comprimidos en la mañana y 2 en la tarde. ¿Cuántos en total?', type:'input', cat:'Aplicación', answer:5,
-      prof:'3 + 2 = 5 comprimidos. Así llevas la cuenta de lo administrado.' },
-    { q:'Pasaron 500 mL de suero en la mañana y 350 mL en la tarde. ¿Total (mL)?', type:'input', cat:'Aplicación', answer:850,
-      prof:'500 + 350 = 850 mL. Esto es el primer paso del balance hídrico.' },
+    { q:'Un paciente recibió 250 mL de suero en la mañana y 250 mL en la tarde. ¿Cuánto en total?', type:'choice', cat:'Cálculo',
+      opts:[{t:'400 mL',c:false},{t:'500 mL',c:true},{t:'750 mL',c:false}],
+      prof:'250 + 250 = 500 mL. Sumar junta lo administrado.' },
+    { q:'Tomó 3 comprimidos en la mañana y 2 en la tarde. ¿Cuántos comprimidos en total?', type:'input', cat:'Cálculo', answer:5,
+      prof:'3 + 2 = 5 comprimidos.' },
+    { q:'En la jeringa cargas 4 mL de fármaco y 6 mL de suero. ¿Volumen total (mL)?', type:'input', cat:'Cálculo', answer:10,
+      prof:'4 + 6 = 10 mL en la jeringa.' },
+    { q:'Ingresos del turno: 500 mL de suero + 300 mL de agua + 200 mL en medicamentos. ¿Total (mL)?', type:'input', cat:'Aplicación', answer:1000,
+      prof:'500 + 300 + 200 = 1000 mL. Este es el primer paso del balance hídrico.' },
   ],
   resta: [
-    { q:'¿Cuánto es 15 − 6?', type:'choice', cat:'Operación',
-      opts:[{t:'8',c:false},{t:'9',c:true},{t:'11',c:false}],
-      prof:'15 − 6 = 9. Restar es quitar o comparar cantidades.' },
-    { q:'¿Cuánto es 50 − 23?', type:'input', cat:'Operación', answer:27,
-      prof:'50 − 23 = 27.' },
-    { q:'Una caja tenía 20 ampollas y usaste 8. ¿Cuántas quedan?', type:'input', cat:'Aplicación', answer:12,
-      prof:'20 − 8 = 12 ampollas. Restar te dice cuánto queda en stock.' },
+    { q:'Una caja tenía 20 ampollas y usaste 8. ¿Cuántas quedan?', type:'choice', cat:'Cálculo',
+      opts:[{t:'10',c:false},{t:'12',c:true},{t:'14',c:false}],
+      prof:'20 − 8 = 12 ampollas en stock.' },
+    { q:'El frasco tenía 100 mL y administraste 35 mL. ¿Cuánto queda (mL)?', type:'input', cat:'Cálculo', answer:65,
+      prof:'100 − 35 = 65 mL.' },
+    { q:'El paciente debía recibir 8 mg y ya recibió 5 mg. ¿Cuánto falta (mg)?', type:'input', cat:'Cálculo', answer:3,
+      prof:'8 − 5 = 3 mg por administrar.' },
     { q:'Ingresó 1000 mL y eliminó 700 mL. ¿Cuánto retuvo (mL)?', type:'input', cat:'Aplicación', answer:300,
       prof:'1000 − 700 = 300 mL. Restar ingresos y egresos es el corazón del balance hídrico.' },
   ],
   multi: [
-    { q:'¿Cuánto es 6 × 4?', type:'choice', cat:'Operación',
-      opts:[{t:'20',c:false},{t:'24',c:true},{t:'28',c:false}],
-      prof:'6 × 4 = 24. Multiplicar es sumar grupos iguales.' },
-    { q:'¿Cuánto es 12 × 5?', type:'input', cat:'Operación', answer:60,
-      prof:'12 × 5 = 60.' },
-    { q:'Cada ampolla trae 4 mg y necesitas 3 ampollas. ¿Cuántos mg juntas?', type:'input', cat:'Aplicación', answer:12,
-      prof:'4 × 3 = 12 mg. Multiplicar junta dosis iguales rápido.' },
-    { q:'Das 2 comprimidos, 3 veces al día. ¿Cuántos comprimidos al día?', type:'input', cat:'Aplicación', answer:6,
+    { q:'Cada ampolla trae 4 mg y necesitas 3 ampollas. ¿Cuántos mg juntas?', type:'choice', cat:'Cálculo',
+      opts:[{t:'7 mg',c:false},{t:'12 mg',c:true},{t:'16 mg',c:false}],
+      prof:'4 × 3 = 12 mg. Multiplicar junta dosis iguales.' },
+    { q:'Das 2 comprimidos, 3 veces al día. ¿Cuántos comprimidos al día?', type:'input', cat:'Cálculo', answer:6,
       prof:'2 × 3 = 6 comprimidos al día.' },
+    { q:'Un comprimido tiene 250 mg. ¿Cuántos mg hay en 4 comprimidos?', type:'input', cat:'Cálculo', answer:1000,
+      prof:'250 × 4 = 1000 mg.' },
+    { q:'El gotero da 20 gotas por mL. ¿Cuántas gotas hay en 5 mL?', type:'input', cat:'Aplicación', answer:100,
+      prof:'20 × 5 = 100 gotas. Esto lo usarás en goteo e infusión.' },
   ],
   divi: [
-    { q:'¿Cuánto es 20 ÷ 4?', type:'choice', cat:'Operación',
-      opts:[{t:'4',c:false},{t:'5',c:true},{t:'6',c:false}],
-      prof:'20 ÷ 4 = 5. Dividir es repartir en partes iguales.' },
-    { q:'¿Cuánto es 96 ÷ 8?', type:'input', cat:'Operación', answer:12,
-      prof:'96 ÷ 8 = 12.' },
-    { q:'Repartes 12 mg en 4 dosis iguales. ¿Cuánto por dosis?', type:'input', cat:'Aplicación', answer:3,
-      prof:'12 ÷ 4 = 3 mg por dosis.' },
+    { q:'Repartes 12 mg en 4 dosis iguales. ¿Cuánto por dosis (mg)?', type:'choice', cat:'Cálculo',
+      opts:[{t:'2 mg',c:false},{t:'3 mg',c:true},{t:'4 mg',c:false}],
+      prof:'12 ÷ 4 = 3 mg por dosis. Dividir reparte en partes iguales.' },
+    { q:'1000 mL deben pasar en 8 horas. ¿Cuántos mL por hora?', type:'input', cat:'Cálculo', answer:125,
+      prof:'1000 ÷ 8 = 125 mL/h.' },
+    { q:'Una caja de 60 comprimidos alcanza para 30 días. ¿Cuántos comprimidos al día?', type:'input', cat:'Cálculo', answer:2,
+      prof:'60 ÷ 30 = 2 comprimidos al día.' },
     { q:'Tienes 500 mg en 5 mL. ¿Cuántos mg hay en 1 mL?', type:'input', cat:'Aplicación', answer:100,
       prof:'500 ÷ 5 = 100 mg/mL. ¡Esto es exactamente el cálculo de dosis que viene después!' },
   ],
@@ -609,9 +615,10 @@ const CASOS = {
     { q:'¿En cuál de estas situaciones SÍ usarías regla de 3?', type:'choice', cat:'Interpretación',
       opts:[{t:'Si 2 ampollas cuestan $1000, ¿cuánto cuestan 5 ampollas?',c:true},{t:'La edad de un paciente',c:false},{t:'El nombre de un medicamento',c:false}],
       prof:'Se usa cuando al aumentar una cantidad, la otra aumenta en la misma proporción.' },
-    { q:'2 comprimidos tienen 500 mg. Para saber cuántos mg hay en 5, ¿cómo ordenas la regla de 3?', type:'choice', cat:'Estrategia',
-      opts:[{t:'2 comprimidos → 500 mg  y  5 comprimidos → x',c:true},{t:'500 mg → 2 comprimidos  y  x → 5 mg',c:false},{t:'2 → 5  y  500 → x',c:false}],
-      prof:'Alinea lo que se corresponde: comprimidos con comprimidos, mg con mg. Ese orden es media pelea ganada.' },
+    { q:'Ármala tú: 2 comprimidos tienen 500 mg. Coloca cada valor en su lugar (arriba el dato conocido, abajo lo que buscas).', type:'build', cat:'Estrategia',
+      plantilla:'{a} comprimidos  →  {b} mg\n{c} comprimidos  →  x mg',
+      blancos:{ a:{opts:['2','5','500'],correcto:'2'}, b:{opts:['2','5','500'],correcto:'500'}, c:{opts:['2','5','500'],correcto:'5'} },
+      prof:'Arriba el dato conocido (2 comprimidos → 500 mg); abajo lo que buscas (5 comprimidos → x). Cada cosa con su par: comprimidos con comprimidos, mg con mg.' },
     { q:'Ya ordenada, ¿qué haces para despejar la x?', type:'choice', cat:'Estrategia',
       opts:[{t:'Multiplicar en cruz y luego dividir',c:true},{t:'Sumar todo',c:false},{t:'Restar los pares',c:false}],
       prof:'Multiplicas en cruz (500 × 5) y divides por el que queda (2). Por eso primero aprendiste a multiplicar y dividir.' },
@@ -620,6 +627,71 @@ const CASOS = {
     { q:'Otra: si 1 mL tiene 20 gotas, ¿cuántas gotas hay en 3 mL?', type:'input', cat:'Resultado', answer:60,
       prof:'(20 × 3) ÷ 1 = 60 gotas. Esta misma lógica está en dosis, goteo y absorbancia.' },
   ],
+
+  suma_tm: [
+    { q:'Preparas una mezcla con 3 mL de reactivo y 2 mL de muestra. ¿Volumen total (mL)?', type:'choice', cat:'Cálculo',
+      opts:[{t:'4 mL',c:false},{t:'5 mL',c:true},{t:'6 mL',c:false}],
+      prof:'3 + 2 = 5 mL. Sumar junta los volúmenes de la mezcla.' },
+    { q:'Un tubo tiene 250 µL y le agregas otros 250 µL. ¿Total (µL)?', type:'input', cat:'Cálculo', answer:500,
+      prof:'250 + 250 = 500 µL.' },
+    { q:'En la gradilla procesaste 12 tubos en la mañana y 9 en la tarde. ¿Cuántos ese día?', type:'input', cat:'Cálculo', answer:21,
+      prof:'12 + 9 = 21 tubos.' },
+    { q:'Combinas 40 mL + 35 mL + 25 mL de tres soluciones. ¿Volumen total (mL)?', type:'input', cat:'Aplicación', answer:100,
+      prof:'40 + 35 + 25 = 100 mL. Base para calcular concentraciones de una mezcla.' },
+  ],
+  resta_tm: [
+    { q:'Un frasco de reactivo tenía 20 mL y usaste 8 mL. ¿Cuánto queda (mL)?', type:'choice', cat:'Cálculo',
+      opts:[{t:'10 mL',c:false},{t:'12 mL',c:true},{t:'14 mL',c:false}],
+      prof:'20 − 8 = 12 mL disponibles.' },
+    { q:'Una caja traía 100 tubos y ocupaste 35. ¿Cuántos quedan?', type:'input', cat:'Cálculo', answer:65,
+      prof:'100 − 35 = 65 tubos.' },
+    { q:'Debías preparar 8 mL de solución y ya llevas 5 mL. ¿Cuánto falta (mL)?', type:'input', cat:'Cálculo', answer:3,
+      prof:'8 − 5 = 3 mL por completar.' },
+    { q:'El valor esperado del control es 1000 y tu lectura fue 700. ¿Cuál es la diferencia?', type:'input', cat:'Aplicación', answer:300,
+      prof:'1000 − 700 = 300. Restar compara el valor real con el esperado — clave en control de calidad.' },
+  ],
+  multi_tm: [
+    { q:'Cada tubo necesita 4 mL de reactivo y tienes 3 tubos. ¿Cuánto reactivo en total (mL)?', type:'choice', cat:'Cálculo',
+      opts:[{t:'7 mL',c:false},{t:'12 mL',c:true},{t:'16 mL',c:false}],
+      prof:'4 × 3 = 12 mL. Multiplicar prepara varios tubos iguales.' },
+    { q:'Procesas 2 muestras, 3 veces al día. ¿Cuántas muestras al día?', type:'input', cat:'Cálculo', answer:6,
+      prof:'2 × 3 = 6 muestras.' },
+    { q:'Cada dilución usa 250 µL por tubo. ¿Cuántos µL para 4 tubos?', type:'input', cat:'Cálculo', answer:1000,
+      prof:'250 × 4 = 1000 µL.' },
+    { q:'El estándar marca 20 unidades por mL. ¿Cuántas unidades hay en 5 mL?', type:'input', cat:'Aplicación', answer:100,
+      prof:'20 × 5 = 100 unidades. Multiplicar escala la concentración al volumen.' },
+  ],
+  divi_tm: [
+    { q:'Repartes 12 mL de muestra en 4 tubos iguales. ¿Cuánto por tubo (mL)?', type:'choice', cat:'Cálculo',
+      opts:[{t:'2 mL',c:false},{t:'3 mL',c:true},{t:'4 mL',c:false}],
+      prof:'12 ÷ 4 = 3 mL por tubo. Dividir reparte en partes iguales.' },
+    { q:'Tienes 1000 µL y los repartes en 8 pocillos iguales. ¿Cuántos µL por pocillo?', type:'input', cat:'Cálculo', answer:125,
+      prof:'1000 ÷ 8 = 125 µL por pocillo.' },
+    { q:'Un frasco de 60 mL alcanza para 30 pruebas. ¿Cuántos mL por prueba?', type:'input', cat:'Cálculo', answer:2,
+      prof:'60 ÷ 30 = 2 mL por prueba.' },
+    { q:'Un estándar de 500 mg está disuelto en 5 mL. ¿Cuántos mg hay en 1 mL?', type:'input', cat:'Aplicación', answer:100,
+      prof:'500 ÷ 5 = 100 mg/mL. ¡Esta es la base del cálculo de concentraciones que viene!' },
+  ],
+  regla3_tm: [
+    { q:'¿Qué es una regla de tres?', type:'choice', cat:'Comprensión',
+      opts:[{t:'Una forma de hallar un valor que falta cuando dos cantidades son proporcionales',c:true},{t:'Una suma de tres números',c:false},{t:'Una división entre tres',c:false}],
+      prof:'La regla de 3 encuentra un dato que falta cuando dos cantidades cambian juntas, en proporción.' },
+    { q:'¿En cuál de estas situaciones SÍ usarías regla de 3?', type:'choice', cat:'Interpretación',
+      opts:[{t:'Si 2 mL de estándar dan 40 unidades, ¿cuánto dan 5 mL?',c:true},{t:'El color del tubo',c:false},{t:'El nombre del reactivo',c:false}],
+      prof:'Se usa cuando al aumentar una cantidad, la otra aumenta en la misma proporción.' },
+    { q:'Ármala tú: 2 mL de estándar dan 40 unidades. Coloca cada valor en su lugar (arriba el dato conocido, abajo lo que buscas).', type:'build', cat:'Estrategia',
+      plantilla:'{a} mL  →  {b} unidades\n{c} mL  →  x unidades',
+      blancos:{ a:{opts:['2','5','40'],correcto:'2'}, b:{opts:['2','5','40'],correcto:'40'}, c:{opts:['2','5','40'],correcto:'5'} },
+      prof:'Arriba el dato conocido (2 mL → 40 unidades); abajo lo que buscas (5 mL → x). Cada cosa con su par: mL con mL, unidades con unidades.' },
+    { q:'Ya ordenada, ¿qué haces para despejar la x?', type:'choice', cat:'Estrategia',
+      opts:[{t:'Multiplicar en cruz y luego dividir',c:true},{t:'Sumar todo',c:false},{t:'Restar los pares',c:false}],
+      prof:'Multiplicas en cruz (40 × 5) y divides por el que queda (2). Por eso primero aprendiste a multiplicar y dividir.' },
+    { q:'Resuélvela: si 2 mL de estándar = 40 unidades, ¿cuántas unidades hay en 5 mL?', type:'input', cat:'Resultado', answer:100,
+      prof:'(40 × 5) ÷ 2 = 100 unidades. ¡Armaste y resolviste una regla de 3!' },
+    { q:'Un estándar de 100 mg/dL da absorbancia 0,4. Tu muestra da 0,2. ¿Qué concentración tiene (mg/dL)?', type:'input', cat:'Resultado', answer:50,
+      prof:'(100 × 0,2) ÷ 0,4 = 50 mg/dL. Esta es la regla de 3 con absorbancia que verás en el laboratorio.' },
+  ],
+
   dosis: [
     { q:'Tienes una ampolla de 500 mg en 5 mL. ¿Qué representa el 500?', type:'choice', cat:'Comprensión',
       opts:[{t:'Los mg totales que hay en la ampolla',c:true},{t:'La dosis a administrar',c:false},{t:'El volumen a inyectar',c:false}],
@@ -759,22 +831,29 @@ function doLogin(){
 
 /* ====================== NIVELES / PROGRESO ====================== */
 const UMBRAL = 60;   // % de dominio para superar un nivel
-const FASE0 = [
+const FASE0_ENF = [
   { tema:'suma',  nombre:'Sumar sin miedo',    label:'Fase 0 · Suma' },
   { tema:'resta', nombre:'Quitar y comparar',  label:'Fase 0 · Resta' },
   { tema:'multi', nombre:'Grupos que crecen',  label:'Fase 0 · Multiplicación' },
   { tema:'divi',  nombre:'Repartir en partes', label:'Fase 0 · División' },
   { tema:'regla3',nombre:'La regla de oro',    label:'Fase 0 · Regla de tres' },
 ];
+const FASE0_TM = [
+  { tema:'suma_tm',  nombre:'Sumar sin miedo',    label:'Fase 0 · Suma' },
+  { tema:'resta_tm', nombre:'Quitar y comparar',  label:'Fase 0 · Resta' },
+  { tema:'multi_tm', nombre:'Grupos que crecen',  label:'Fase 0 · Multiplicación' },
+  { tema:'divi_tm',  nombre:'Repartir en partes', label:'Fase 0 · División' },
+  { tema:'regla3_tm',nombre:'La regla de oro',    label:'Fase 0 · Regla de tres' },
+];
 const NIVELES = {
   enfermeria: [
-    ...FASE0,
+    ...FASE0_ENF,
     { tema:'dosis',   nombre:'Primeros pasos',   label:'Cálculo de dosis' },
     { tema:'balance', nombre:'En equilibrio',     label:'Balance hídrico' },
     { tema:'goteo',   nombre:'A contrarreloj',    label:'Goteo e infusión' },
   ],
   tecmed: [
-    ...FASE0,
+    ...FASE0_TM,
     { tema:'conc',    nombre:'El punto de partida',    label:'Concentraciones (%m/v, m/m, v/v)' },
     { tema:'gl',      nombre:'Cambio de escala',       label:'g/L y mg/dL' },
     { tema:'convert', nombre:'Traductor de unidades',  label:'Conversión de unidades' },
@@ -897,10 +976,29 @@ function renderStep(){
       b.onclick=()=>choose(b,o,step);
       opts.appendChild(b);
     });
+  } else if(step.type==='build'){
+    num.hidden=true; opts.hidden=false;
+    const html = step.plantilla.replace(/\{(\w+)\}/g,(m,key)=>{
+      const b=step.blancos[key];
+      const o=b.opts.map(v=>`<option value="${v}">${v}</option>`).join('');
+      return `<select class="blank" data-key="${key}"><option value="">?</option>${o}</select>`;
+    }).replace(/\n/g,'<br>');
+    opts.innerHTML = `<div class="build-box">${html}</div><button class="btn" style="width:100%" onclick="checkBuild()">Confirmar</button>`;
   } else {
     opts.hidden=true; num.hidden=false;
     const inp=document.getElementById('num-input'); inp.value=''; inp.disabled=false; inp.focus();
   }
+}
+function checkBuild(){
+  const step=CASOS[app.tema][app.step];
+  const sels=document.querySelectorAll('#options .blank');
+  let filled=true; sels.forEach(s=>{ if(!s.value) filled=false; });
+  if(!filled) return;
+  let allOk=true;
+  sels.forEach(s=>{ const ok = s.value===step.blancos[s.dataset.key].correcto;
+    s.classList.remove('ok','no'); s.classList.add(ok?'ok':'no'); if(!ok) allOk=false; });
+  if(allOk){ sels.forEach(s=>s.disabled=true); score(step); setTimeout(next,850); }
+  else { step._tries++; app.errores[step.cat]=(app.errores[step.cat]||0)+1; showProf(step); }
 }
 function choose(btn,o,step){
   if(o.c){
