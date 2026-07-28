@@ -131,6 +131,34 @@
     border-radius:999px; border:1px solid var(--line-2); color:var(--faint); }
   .topic .t-tag.on{ color:var(--pulse); border-color:var(--pulse); }
 
+  /* Mapa de niveles */
+  .mapa{ position:relative; padding:6px 0; }
+  .nivel{ position:relative; display:flex; align-items:flex-start; gap:14px; width:100%;
+    text-align:left; background:transparent; border:none; color:var(--text);
+    font-family:var(--font-body); padding:0 0 20px 0; cursor:pointer; }
+  .nivel .linea{ position:absolute; left:22px; top:44px; height:calc(100% - 40px); width:3px;
+    background:var(--line-2); z-index:0; }
+  .nivel:last-child .linea{ display:none; }
+  .badge{ width:46px; height:46px; border-radius:50%; flex-shrink:0; z-index:1;
+    display:flex; align-items:center; justify-content:center; overflow:hidden;
+    background:var(--surface); border:2px solid var(--line-2);
+    font-family:var(--font-head); font-weight:700; font-size:1.1em; }
+  .badge svg{ width:100%; height:100%; }
+  .nivel.done .badge{ background:var(--pulse); color:#04140E; border-color:var(--pulse); }
+  .nivel.current .badge{ border-color:var(--pulse); box-shadow:0 0 0 4px rgba(23,227,168,.20); background:var(--surface-2); }
+  .nivel.locked .badge{ opacity:.55; }
+  .nivel .info{ flex:1; padding-top:2px; }
+  .nivel .nombre{ font-family:var(--font-head); font-weight:600; font-size:1.05em; }
+  .nivel .tema{ color:var(--muted); font-size:.88em; }
+  .nivel .estado-tag{ font-family:var(--font-mono); font-size:.68em; letter-spacing:.06em; margin-top:3px; text-transform:uppercase; color:var(--faint); }
+  .nivel.current .estado-tag{ color:var(--pulse); }
+  .nivel.locked{ cursor:default; }
+  .nivel.locked .nombre{ color:var(--muted); }
+  .nivel.shake{ animation:shake .35s var(--ease); }
+  @keyframes shake{ 0%,100%{transform:translateX(0);} 25%{transform:translateX(-6px);} 75%{transform:translateX(6px);} }
+  .mapa-fin{ text-align:center; background:rgba(23,227,168,.10); border:1px solid var(--pulse);
+    border-radius:14px; padding:14px; margin-bottom:16px; color:var(--pulse); font-weight:600; }
+
   /* Motor de entrenamiento */
   .progress{ display:flex; align-items:center; gap:12px; margin-bottom:22px; }
   .track{ flex:1; height:6px; background:var(--surface); border-radius:4px; overflow:hidden; }
@@ -299,7 +327,8 @@
   <section class="screen" id="s-temas" aria-labelledby="h-temas">
     <button class="back" onclick="go('s-acceso')">← Salir</button>
     <p class="eyebrow" id="temas-user"></p>
-    <h1 id="h-temas" style="margin:4px 0 18px">Elige un tema para entrenar</h1>
+    <h1 id="h-temas" style="margin:4px 0 4px">Tu recorrido</h1>
+    <p class="lead" style="text-align:left; margin:0 0 20px">Supera cada nivel para desbloquear el siguiente. El Dr. Cálculo avanza contigo.</p>
     <div id="temas-list"></div>
   </section>
 
@@ -327,9 +356,10 @@
     <h1 id="h-result" style="margin:6px 0 16px">Resultado</h1>
     <div id="result-rows"></div>
     <div class="mastery"><div class="eyebrow">Dominio</div><div class="v" id="mastery">—%</div></div>
+    <p class="lead" id="result-msg" style="font-weight:600"></p>
     <p class="lead">Hoy entrenaste una habilidad.<br>No memorizaste una fórmula.</p>
     <div style="display:flex; gap:10px; justify-content:center; flex-wrap:wrap">
-      <button class="btn ghost" onclick="go('s-temas')">Otro tema</button>
+      <button class="btn ghost" onclick="volverMapa()">Volver al mapa</button>
       <button class="btn" onclick="go('s-acceso')">Terminar</button>
     </div>
   </section>
@@ -656,26 +686,88 @@ function doLogin(){
   if(!asig){ err.textContent = 'Selecciona tu asignatura.'; return; }
   err.textContent = '';
   app.email = email; app.asignatura = asig;
-  renderTemas();
+  renderMapa();
   go('s-temas');
 }
-function renderTemas(){
+
+/* ====================== NIVELES / PROGRESO ====================== */
+const UMBRAL = 60;   // % de dominio para superar un nivel
+const NIVELES = {
+  enfermeria: [
+    { tema:'dosis',   nombre:'Primeros pasos',   label:'Cálculo de dosis' },
+    { tema:'balance', nombre:'En equilibrio',     label:'Balance hídrico' },
+    { tema:'goteo',   nombre:'A contrarreloj',    label:'Goteo e infusión' },
+  ],
+  tecmed: [
+    { tema:'conc',    nombre:'El punto de partida',    label:'Concentraciones (%m/v, m/m, v/v)' },
+    { tema:'gl',      nombre:'Cambio de escala',       label:'g/L y mg/dL' },
+    { tema:'convert', nombre:'Traductor de unidades',  label:'Conversión de unidades' },
+    { tema:'molar',   nombre:'Cuestión de moles',      label:'Molaridad' },
+    { tema:'densidad',nombre:'Peso y volumen',         label:'Densidad' },
+    { tema:'absorb',  nombre:'El caso del paciente',   label:'Regla de 3 con absorbancia' },
+  ]
+};
+const MINI_CIENTIFICO = `<svg viewBox="0 0 200 172" xmlns="http://www.w3.org/2000/svg">
+  <circle cx="54" cy="84" r="17" fill="#C7D0DC"/><circle cx="46" cy="106" r="17" fill="#C7D0DC"/>
+  <circle cx="146" cy="84" r="17" fill="#C7D0DC"/><circle cx="154" cy="106" r="17" fill="#C7D0DC"/>
+  <circle cx="70" cy="62" r="15" fill="#C7D0DC"/><circle cx="130" cy="62" r="15" fill="#C7D0DC"/>
+  <ellipse cx="100" cy="100" rx="46" ry="50" fill="#F4C9A6"/>
+  <path d="M62,68 q38,-20 76,0 q-38,-8 -76,0Z" fill="#F4C9A6"/>
+  <path d="M68,78 q13,-9 26,-3" fill="none" stroke="#AEB9C8" stroke-width="6" stroke-linecap="round"/>
+  <path d="M106,75 q13,-6 26,3" fill="none" stroke="#AEB9C8" stroke-width="6" stroke-linecap="round"/>
+  <circle cx="82" cy="98" r="15" fill="#CDE8F6" stroke="#2B2B2B" stroke-width="3"/>
+  <circle cx="118" cy="98" r="15" fill="#CDE8F6" stroke="#2B2B2B" stroke-width="3"/>
+  <line x1="97" y1="98" x2="103" y2="98" stroke="#2B2B2B" stroke-width="3"/>
+  <circle cx="84" cy="99" r="4" fill="#22303A"/><circle cx="120" cy="99" r="4" fill="#22303A"/>
+  <ellipse cx="100" cy="118" rx="12" ry="14" fill="#EFB98F"/>
+  <path d="M76,132 q24,20 48,0 q-9,15 -24,13 q-15,2 -24,-13Z" fill="#C7D0DC"/>
+</svg>`;
+function progKey(){ return 'rcm_prog_' + (app.email||'anon') + '_' + app.carrera; }
+function getCompleted(){ try{ return parseInt(localStorage.getItem(progKey())||'0',10)||0; }catch(e){ return 0; } }
+function setCompleted(n){ try{ localStorage.setItem(progKey(), String(n)); }catch(e){} }
+
+function renderMapa(){
   document.getElementById('temas-user').textContent =
     (app.carrera==='enfermeria'?'Enfermería':'Tec Médica') + ' · ' + app.asignatura + ' · ' + app.email;
-  const list = document.getElementById('temas-list'); list.innerHTML='';
-  TEMAS[app.carrera].forEach(t=>{
-    const b = document.createElement('button');
-    b.className='topic'; b.disabled = t.estado!=='activo';
-    b.innerHTML = `<span class="t-name">${t.label}</span>
-      <span class="t-tag ${t.estado==='activo'?'on':''}">${t.estado==='activo'?'Disponible':'Próximamente'}</span>`;
-    if(t.estado==='activo') b.onclick = ()=>startTema(t.id, t.label);
-    list.appendChild(b);
+  const cont = document.getElementById('temas-list'); cont.innerHTML='';
+  const niveles = NIVELES[app.carrera] || [];
+  const done = getCompleted();
+  const mapa = document.createElement('div'); mapa.className='mapa';
+  if(done >= niveles.length){
+    const fin=document.createElement('div'); fin.className='mapa-fin';
+    fin.textContent='🏆 ¡Completaste todo el recorrido! Puedes repetir cualquier nivel.';
+    mapa.appendChild(fin);
+  }
+  niveles.forEach((n,i)=>{
+    const estado = i<done ? 'done' : (i===done ? 'current' : 'locked');
+    const row = document.createElement('button');
+    row.className = 'nivel ' + estado;
+    row.onclick = (estado==='locked') ? ()=>avisoBloqueado(row) : ()=>startTema(n.tema, n.nombre, i);
+    let badge = estado==='done' ? '✓' : (estado==='current' ? MINI_CIENTIFICO : '🔒');
+    const tag = estado==='done'?'Completado' : (estado==='current'?'¡Tu turno!':'Bloqueado');
+    row.innerHTML = `<div class="linea"></div>
+      <div class="badge">${badge}</div>
+      <div class="info">
+        <div class="nombre">Nivel ${i+1} · ${n.nombre}</div>
+        <div class="tema">${n.label}</div>
+        <div class="estado-tag">${tag}</div>
+      </div>`;
+    mapa.appendChild(row);
   });
+  cont.appendChild(mapa);
 }
+function avisoBloqueado(row){
+  row.classList.remove('shake'); void row.offsetWidth; row.classList.add('shake');
+  const tag = row.querySelector('.estado-tag');
+  if(tag){ const orig=tag.textContent; tag.textContent='Completa el nivel anterior primero'; tag.style.color='var(--danger)';
+    setTimeout(()=>{ tag.textContent=orig; tag.style.color=''; }, 1800); }
+}
+function volverMapa(){ renderMapa(); go('s-temas'); }
 
 /* ====================== MOTOR ====================== */
-function startTema(id,label){
+function startTema(id,label,idx){
   app.tema=id; app.step=0; app.scores={}; app.errores={}; app.temaLabel=label;
+  app.nivelIndex = (typeof idx==='number') ? idx : null;
   document.getElementById('h-train').textContent = label;
   renderStep();
   go('s-train');
@@ -760,6 +852,25 @@ function finish(){
   const mastery = all.length?Math.round(all.reduce((a,b)=>a+b,0)/all.length):0;
   document.getElementById('mastery').textContent = mastery+'%';
   guardarSesion(mastery);
+  const msg = document.getElementById('result-msg');
+  const niveles = NIVELES[app.carrera] || [];
+  if(typeof app.nivelIndex==='number'){
+    const done = getCompleted();
+    if(app.nivelIndex===done){
+      if(mastery>=UMBRAL){
+        setCompleted(done+1);
+        const quedan = niveles.length-(done+1);
+        msg.style.color='var(--pulse)';
+        msg.textContent = quedan>0 ? '🎉 ¡Nivel superado! Desbloqueaste el siguiente.' : '🏆 ¡Superaste el último nivel! Completaste el recorrido.';
+      } else {
+        msg.style.color='#FFB142';
+        msg.textContent = `Te faltó poco: necesitas ${UMBRAL}% para superar el nivel. Repítelo — el Dr. Cálculo te ayuda a mejorar.`;
+      }
+    } else {
+      msg.style.color='var(--muted)';
+      msg.textContent = 'Buen repaso de un nivel que ya tenías superado.';
+    }
+  } else { msg.textContent=''; }
   go('s-result');
 }
 function guardarSesion(mastery){
