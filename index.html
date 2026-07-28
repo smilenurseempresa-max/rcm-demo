@@ -187,6 +187,20 @@
     border-radius:10px; padding:12px 14px; margin-bottom:8px; font-size:.9em; }
   .note{ background:rgba(106,75,216,.08); border:1px solid rgba(106,75,216,.4); border-radius:12px;
     padding:14px; font-size:.85em; color:var(--muted); margin-top:10px; }
+  /* ---------- Modal científico loco ---------- */
+  .modal-backdrop{ position:fixed; inset:0; z-index:100; background:rgba(4,8,16,.75);
+    display:flex; align-items:center; justify-content:center; padding:20px; animation:fade .25s var(--ease); }
+  .modal-backdrop[hidden]{ display:none; }
+  .modal-card{ background:var(--surface); border:1px solid var(--purple); border-radius:20px;
+    padding:26px 22px; max-width:420px; width:100%; text-align:center;
+    box-shadow:0 20px 60px rgba(0,0,0,.55); animation:pop .3s var(--ease); }
+  .prof-visual{ margin-bottom:14px; }
+  .prof-img{ max-width:180px; max-height:200px; width:auto; border-radius:14px; display:inline-block; }
+  .prof-emoji{ font-size:3.6em; }
+  .prof-who{ font-family:var(--font-mono); font-size:.72em; letter-spacing:.1em; text-transform:uppercase; color:var(--purple); margin-bottom:8px; }
+  .prof-text{ color:var(--text); font-size:1.05em; line-height:1.5; margin-bottom:20px; }
+  .prof-text b{ color:var(--pulse); }
+
   .row2{ display:grid; gap:12px; }
   @media(min-width:540px){ .row2{ grid-template-columns:1fr 1fr; } }
 </style>
@@ -345,7 +359,8 @@
 
     <!-- Avances -->
     <div id="t-avances">
-      <p class="lead" style="text-align:left; margin:0 0 14px">Quién practicó y —lo importante— <b>en qué tipo de error</b>, para saber qué reforzar en clase.</p>
+      <p class="lead" style="text-align:left; margin:0 0 8px">Quién practicó y —lo importante— <b>en qué tipo de error</b>, para saber qué reforzar en clase.</p>
+      <p class="microcalc" id="roster-note" style="text-align:left; margin:0 0 14px"></p>
       <div class="card" style="overflow-x:auto">
         <table class="roster">
           <thead><tr><th>Estudiante</th><th>Tema</th><th>Dominio</th><th>Error más común</th></tr></thead>
@@ -400,14 +415,30 @@
       <div id="saved-list"><p class="microcalc" style="text-align:left">Aún no has creado casos en esta sesión.</p></div>
 
       <div class="note">
-        <b>🤖 Próximamente — asistencia con IA.</b> Sube una guía en Word, PDF o JPG y la IA
-        <b>pre-llena estos campos</b> con casos propuestos; tú los revisas, corriges y apruebas antes de publicar.
-        En salud, la última palabra siempre es del docente. (Requiere un servidor con llave de IA — se activa en la siguiente etapa.)
-        <div style="margin-top:10px"><button class="btn ghost" disabled>Subir guía (IA) — próximamente</button></div>
+        <b>🤖 Asistencia con IA — demostración.</b> Sube una guía (Word, PDF o JPG) y la IA
+        <b>propone casos</b>; tú los revisas y apruebas antes de publicar. En salud, la última palabra es del docente.
+        <div style="margin-top:10px"><button class="btn ghost" onclick="document.getElementById('guia-file').click()">Subir guía (demo IA)</button></div>
+        <input id="guia-file" type="file" accept=".pdf,.doc,.docx,.jpg,.jpeg,.png" style="display:none" onchange="analizarGuiaDemo(this)">
+        <p class="microcalc" style="text-align:left; margin-top:8px">Simulación de cómo funcionaría. La versión real usa un servidor con IA.</p>
       </div>
+      <div id="ia-result" style="margin-top:12px"></div>
     </div>
   </section>
 
+</div>
+
+<!-- Modal del científico loco (aparece al equivocarse) -->
+<div class="modal-backdrop" id="prof-modal" role="dialog" aria-modal="true" aria-labelledby="prof-title" hidden onclick="if(event.target===this)closeProf()">
+  <div class="modal-card">
+    <div class="prof-visual">
+      <img id="prof-img" class="prof-img" src="cientifico.png" alt="Dr. Cálculo"
+           onerror="this.style.display='none';var e=document.getElementById('prof-emoji');if(e)e.style.display='block';">
+      <div id="prof-emoji" class="prof-emoji" style="display:none">🥽</div>
+    </div>
+    <p class="prof-who" id="prof-title">El Dr. Cálculo te corrige</p>
+    <p class="prof-text" id="prof-text" aria-live="polite"></p>
+    <button class="btn" id="prof-close" onclick="closeProf()">Entendido</button>
+  </div>
 </div>
 
 <script>
@@ -606,7 +637,7 @@ function renderTemas(){
 
 /* ====================== MOTOR ====================== */
 function startTema(id,label){
-  app.tema=id; app.step=0; app.scores={};
+  app.tema=id; app.step=0; app.scores={}; app.errores={}; app.temaLabel=label;
   document.getElementById('h-train').textContent = label;
   renderStep();
   go('s-train');
@@ -644,6 +675,7 @@ function choose(btn,o,step){
   } else {
     btn.classList.add('no','done'); btn.disabled=true;
     step._tries++;
+    app.errores[step.cat]=(app.errores[step.cat]||0)+1;
     showProf(step);
   }
 }
@@ -656,14 +688,18 @@ function checkNum(){
     document.getElementById('feedback').innerHTML='';
     setTimeout(next, 700);
   } else {
-    step._tries++; showProf(step);
+    step._tries++;
+    app.errores[step.cat]=(app.errores[step.cat]||0)+1;
+    showProf(step);
   }
 }
 function showProf(step){
-  document.getElementById('feedback').innerHTML =
-    `<div class="prof"><span class="avatar" aria-hidden="true">🥽</span>
-      <div class="bubble"><span class="who">Dr. Cálculo dice:</span>${step.prof}</div></div>`;
+  document.getElementById('prof-text').innerHTML = step.prof;
+  document.getElementById('prof-modal').hidden = false;
+  document.getElementById('prof-close').focus();
 }
+function closeProf(){ document.getElementById('prof-modal').hidden = true; }
+document.addEventListener('keydown', e=>{ if(e.key==='Escape') closeProf(); });
 function score(step){
   const s = step._tries===0?100:step._tries===1?70:40;
   (app.scores[step.cat] = app.scores[step.cat]||[]).push(s);
@@ -685,7 +721,26 @@ function finish(){
   });
   const mastery = all.length?Math.round(all.reduce((a,b)=>a+b,0)/all.length):0;
   document.getElementById('mastery').textContent = mastery+'%';
+  guardarSesion(mastery);
   go('s-result');
+}
+function guardarSesion(mastery){
+  const errs=app.errores||{}; let topErr='—', max=0;
+  for(const k in errs){ if(errs[k]>max){ max=errs[k]; topErr=k; } }
+  const sesion={
+    email: app.email||'—',
+    carrera: app.carrera==='enfermeria'?'Enfermería':'Tec Médica',
+    asignatura: app.asignatura||'—',
+    tema: app.temaLabel||app.tema,
+    dominio: mastery,
+    error: max? topErr : '—',
+    fecha: new Date().toLocaleDateString('es-CL')
+  };
+  try{
+    const arr=JSON.parse(localStorage.getItem('rcm_sesiones')||'[]');
+    arr.push(sesion);
+    localStorage.setItem('rcm_sesiones', JSON.stringify(arr));
+  }catch(e){}
 }
 
 /* ====================== FLUJO DOCENTE ====================== */
@@ -708,14 +763,30 @@ const ROSTER=[
   {n:'Benjamín Torres Lagos',t:'Balance hídrico',d:92,e:'—',s:'mastery'},
   {n:'Catalina Vidal Rojas',t:'Cálculo de dosis',d:40,e:'Error de factor 10',s:'training'},
 ];
+function statusFromDominio(d){ return d>=90?'mastery':d>=75?'competent':d>=1?'training':'locked'; }
 function renderRoster(){
   const b=document.getElementById('roster-body'); b.innerHTML='';
-  ROSTER.forEach(r=>{
-    b.innerHTML += `<tr>
-      <td><span class="dot ${r.s}"></span> ${r.n}</td>
-      <td>${r.t}</td><td>${r.d}%</td>
-      <td>${r.e==='—'?'—':'<span class="pill">'+r.e+'</span>'}</td></tr>`;
-  });
+  const note=document.getElementById('roster-note');
+  let sesiones=[];
+  try{ sesiones=JSON.parse(localStorage.getItem('rcm_sesiones')||'[]'); }catch(e){}
+  if(sesiones.length){
+    if(note) note.textContent='Datos reales guardados en este navegador (demo del guardado) — los más recientes primero.';
+    sesiones.slice().reverse().forEach(r=>{
+      const est=statusFromDominio(r.dominio);
+      b.innerHTML += `<tr>
+        <td><span class="dot ${est}"></span> ${r.email}</td>
+        <td>${r.tema}</td><td>${r.dominio}%</td>
+        <td>${r.error==='—'?'—':'<span class="pill">'+r.error+'</span>'}</td></tr>`;
+    });
+  } else {
+    if(note) note.textContent='Todavía no hay sesiones reales. Practica como estudiante y vuelve aquí — aparecerán solas. (Abajo, ejemplos de cómo se ve.)';
+    ROSTER.forEach(r=>{
+      b.innerHTML += `<tr>
+        <td><span class="dot ${r.s}"></span> ${r.n}</td>
+        <td>${r.t}</td><td>${r.d}%</td>
+        <td>${r.e==='—'?'—':'<span class="pill">'+r.e+'</span>'}</td></tr>`;
+    });
+  }
 }
 
 /* ---- Generador de casos (formulario) ---- */
@@ -772,6 +843,49 @@ function saveCase(){
   document.getElementById('preview-wrap').innerHTML='';
   ['c-tema','c-q','c-error','c-prof','c-answer'].forEach(id=>{const el=document.getElementById(id); if(el) el.value='';});
   for(let i=0;i<4;i++){const el=document.getElementById('opt'+i); if(el) el.value='';}
+}
+
+/* ---- Demo: alimentador de ejercicios con IA ---- */
+const PROPUESTAS_IA=[
+  { carrera:'Tecnología Médica', tema:'Concentraciones %m/v',
+    q:'Preparas 250 mL de suero glucosado al 5% m/v. ¿Cuántos gramos de glucosa contiene?',
+    type:'input', answer:'12.5', cat:'error en la regla de 3',
+    prof:'5 g por 100 mL → en 250 mL: 5 × 2,5 = 12,5 g.' },
+  { carrera:'Tecnología Médica', tema:'Conversión de unidades',
+    q:'Un resultado informa 0,8 g/L de proteína. ¿Cuántos mg/dL son?',
+    type:'input', answer:'80', cat:'no convirtió g/L a mg/dL',
+    prof:'0,8 g/L × 100 = 80 mg/dL.' },
+];
+function analizarGuiaDemo(inp){
+  const file=inp.files&&inp.files[0]; if(!file) return;
+  const wrap=document.getElementById('ia-result');
+  wrap.innerHTML=`<div class="card"><p class="eyebrow">🤖 Analizando "${file.name}" con IA…</p>
+    <div class="track" style="margin-top:12px"><div class="fill" id="ia-fill" style="width:0"></div></div></div>`;
+  setTimeout(()=>{ const f=document.getElementById('ia-fill'); if(f) f.style.width='100%'; }, 60);
+  setTimeout(()=>mostrarPropuestasIA(file.name), 1600);
+  inp.value='';
+}
+function mostrarPropuestasIA(nombre){
+  const wrap=document.getElementById('ia-result');
+  let html=`<div class="card"><p class="eyebrow">🤖 La IA leyó "${nombre}" y propone ${PROPUESTAS_IA.length} casos</p>
+    <p class="microcalc" style="text-align:left; margin:6px 0 12px">Revísalos y aprueba los que sirvan. Tú tienes la última palabra.</p>`;
+  PROPUESTAS_IA.forEach((c,i)=>{
+    html+=`<div class="saved" style="border-left-color:var(--purple)">
+      <b>${c.tema}</b> — ${c.carrera}<br>
+      <span style="color:var(--muted)">${c.q}</span><br>
+      <span class="microcalc">Respuesta: ${c.answer} · error frecuente: ${c.cat}</span><br>
+      <button class="btn ghost" style="margin-top:8px" onclick="aprobarPropuesta(${i}, this)">Aprobar y agregar</button>
+    </div>`;
+  });
+  html+='</div>';
+  wrap.innerHTML=html;
+}
+function aprobarPropuesta(i, btn){
+  const c=PROPUESTAS_IA[i];
+  CASOS_CREADOS.push({carrera:c.carrera, tema:c.tema, q:c.q, type:c.type, answer:c.answer, cat:c.cat, prof:c.prof});
+  const list=document.getElementById('saved-list'); list.innerHTML='';
+  CASOS_CREADOS.forEach((x,j)=> list.innerHTML += `<div class="saved"><b>${j+1}. ${x.tema}</b> — ${x.carrera}<br><span style="color:var(--muted)">${x.q}</span></div>`);
+  if(btn){ btn.textContent='✓ Aprobado'; btn.disabled=true; }
 }
 
 /* init */
