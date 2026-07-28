@@ -1,0 +1,673 @@
+<!DOCTYPE html>
+<html lang="es" data-text="1" data-contrast="normal">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>RCM · Prototipo completo</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#0A0F1A; --surface:#111a2b; --surface-2:#16223a;
+    --line:rgba(255,255,255,.10); --line-2:rgba(255,255,255,.20);
+    --text:#EAF1FF; --muted:#9FB0CC; --faint:#5C6E8C;
+    --pulse:#17E3A8; --blue:#2E86D6; --teal:#1F9FB0; --indigo:#3A5AC0; --purple:#6A4BD8;
+    --danger:#FF6B6B;
+    --ease:cubic-bezier(.22,.61,.36,1);
+    --fs:1;               /* factor de tamaño de texto (accesibilidad) */
+    --font-body:'Inter',system-ui,sans-serif;
+    --font-head:'Space Grotesk',sans-serif;
+    --font-mono:'IBM Plex Mono',monospace;
+  }
+  html[data-text="2"]{ --fs:1.15; }
+  html[data-text="3"]{ --fs:1.32; }
+  html[data-contrast="alto"]{
+    --bg:#000; --surface:#0a0a0a; --surface-2:#141414;
+    --text:#fff; --muted:#e6e6e6; --faint:#c9c9c9;
+    --line:rgba(255,255,255,.4); --line-2:rgba(255,255,255,.6);
+    --pulse:#28ffbe;
+  }
+  *{box-sizing:border-box;margin:0;padding:0;}
+  html,body{height:100%;}
+  body{
+    background:radial-gradient(120% 80% at 50% -5%, #101a2e 0%, var(--bg) 55%);
+    color:var(--text); font-family:var(--font-body);
+    font-size:calc(16px*var(--fs)); line-height:1.55; min-height:100vh;
+    -webkit-font-smoothing:antialiased;
+  }
+  :focus-visible{ outline:3px solid var(--pulse); outline-offset:2px; border-radius:6px; }
+  @media (prefers-reduced-motion:reduce){ *{ animation:none!important; transition:none!important; } }
+
+  .wrap{ max-width:640px; margin:0 auto; padding:76px 20px 60px; }
+
+  /* ---------- Barra de accesibilidad ---------- */
+  .a11y{
+    position:fixed; top:12px; right:12px; z-index:50;
+    display:flex; gap:8px; align-items:center;
+    background:var(--surface); border:1px solid var(--line);
+    border-radius:999px; padding:6px 10px;
+  }
+  .a11y span{ font-size:11px; color:var(--faint); font-family:var(--font-mono); letter-spacing:.04em; }
+  .a11y button{
+    font-family:var(--font-body); color:var(--muted);
+    background:transparent; border:1px solid var(--line-2); border-radius:8px;
+    padding:4px 9px; cursor:pointer; font-weight:600; line-height:1;
+  }
+  .a11y button:hover,.a11y button[aria-pressed="true"]{ color:var(--bg); background:var(--text); }
+  html[data-contrast="alto"] .a11y button:hover{ color:#000; }
+
+  /* ---------- Screens ---------- */
+  .screen{ display:none; animation:fade .35s var(--ease); }
+  .screen.active{ display:block; }
+  @keyframes fade{ from{opacity:0; transform:translateY(8px);} to{opacity:1; transform:none;} }
+
+  .brand{ text-align:center; margin-bottom:8px; }
+  .brand .mark{ font-family:var(--font-head); font-weight:700; font-size:2.4em; letter-spacing:.06em;
+    background:linear-gradient(180deg,#fff,#9db6d8); -webkit-background-clip:text; background-clip:text; color:transparent; }
+  html[data-contrast="alto"] .brand .mark{ background:none; color:#fff; }
+  .brand .sub{ font-size:.72em; letter-spacing:.22em; color:#7FA6DE; text-transform:uppercase; font-weight:600; }
+  .lead{ text-align:center; color:var(--muted); margin:14px auto 30px; max-width:44ch; }
+
+  h1,h2{ font-family:var(--font-head); font-weight:600; line-height:1.2; }
+  .eyebrow{ font-family:var(--font-mono); font-size:.72em; letter-spacing:.12em; text-transform:uppercase; color:var(--faint); }
+
+  .btn{ font-family:var(--font-body); font-weight:600; font-size:1em; color:#04140E;
+    background:var(--pulse); border:none; border-radius:999px; padding:14px 28px; cursor:pointer;
+    transition:transform .15s var(--ease), box-shadow .2s var(--ease); }
+  .btn:hover{ transform:translateY(-1px); box-shadow:0 8px 26px rgba(23,227,168,.28); }
+  .btn.ghost{ background:transparent; color:var(--muted); border:1px solid var(--line-2); }
+  .btn.ghost:hover{ color:var(--text); box-shadow:none; }
+  .btn:disabled{ opacity:.45; cursor:not-allowed; transform:none; box-shadow:none; }
+  .back{ background:none; border:none; color:var(--muted); font-family:var(--font-body); font-size:.9em;
+    cursor:pointer; padding:6px 0; margin-bottom:18px; }
+  .back:hover{ color:var(--text); }
+
+  /* Tarjetas de elección */
+  .choices{ display:grid; gap:16px; }
+  @media(min-width:540px){ .choices.two{ grid-template-columns:1fr 1fr; } }
+  .choice{ text-align:left; background:var(--surface); border:1px solid var(--line); border-radius:18px;
+    padding:22px; cursor:pointer; transition:.18s var(--ease); color:var(--text); font-family:var(--font-body); }
+  .choice:hover{ border-color:var(--pulse); transform:translateY(-2px); background:var(--surface-2); }
+  .choice .ic{ font-size:1.8em; display:block; margin-bottom:10px; }
+  .choice h2{ font-size:1.25em; margin-bottom:4px; }
+  .choice p{ color:var(--muted); font-size:.9em; }
+
+  /* Formularios */
+  .field{ margin-bottom:16px; }
+  .field label{ display:block; font-size:.85em; color:var(--muted); margin-bottom:6px; font-weight:600; }
+  .field input,.field select,.field textarea{
+    width:100%; background:var(--surface); border:1px solid var(--line-2); border-radius:12px;
+    padding:12px 14px; color:var(--text); font-family:var(--font-body); font-size:1em; }
+  .field textarea{ min-height:70px; resize:vertical; }
+  .field .hint{ font-size:.78em; color:var(--faint); margin-top:5px; }
+  .err-msg{ color:var(--danger); font-size:.85em; margin-top:8px; min-height:1.2em; }
+
+  .card{ background:var(--surface); border:1px solid var(--line); border-radius:18px; padding:22px; }
+
+  /* Lista de temas */
+  .topic{ display:flex; align-items:center; justify-content:space-between; gap:12px;
+    width:100%; text-align:left; background:var(--surface); border:1px solid var(--line);
+    border-radius:14px; padding:16px 18px; cursor:pointer; color:var(--text);
+    font-family:var(--font-body); margin-bottom:10px; transition:.15s var(--ease); }
+  .topic:hover:not(:disabled){ border-color:var(--pulse); background:var(--surface-2); }
+  .topic:disabled{ opacity:.5; cursor:default; }
+  .topic .t-name{ font-weight:600; }
+  .topic .t-tag{ font-family:var(--font-mono); font-size:.7em; letter-spacing:.06em; padding:3px 9px;
+    border-radius:999px; border:1px solid var(--line-2); color:var(--faint); }
+  .topic .t-tag.on{ color:var(--pulse); border-color:var(--pulse); }
+
+  /* Motor de entrenamiento */
+  .progress{ display:flex; align-items:center; gap:12px; margin-bottom:22px; }
+  .track{ flex:1; height:6px; background:var(--surface); border-radius:4px; overflow:hidden; }
+  .fill{ height:100%; background:var(--pulse); width:0; transition:width .4s var(--ease); }
+  .count{ font-family:var(--font-mono); font-size:.75em; color:var(--faint); }
+  .case{ background:var(--surface-2); border:1px solid var(--line); border-radius:16px; padding:20px;
+    text-align:center; margin-bottom:20px; }
+  .case .q{ font-family:var(--font-head); font-size:1.2em; }
+  .options{ display:grid; gap:10px; }
+  .option{ text-align:left; background:var(--surface); border:1px solid var(--line-2); border-radius:12px;
+    padding:14px 16px; cursor:pointer; color:var(--text); font-family:var(--font-body); font-size:1em;
+    transition:.14s var(--ease); }
+  .option:hover:not(.done){ border-color:var(--pulse); }
+  .option.ok{ border-color:var(--pulse); background:rgba(23,227,168,.12); }
+  .option.no{ border-color:var(--danger); background:rgba(255,107,107,.10); }
+  .option.done{ cursor:default; }
+  .num{ display:flex; gap:10px; }
+  .num input{ flex:1; background:var(--surface); border:1px solid var(--line-2); border-radius:12px;
+    padding:12px 14px; color:var(--text); font-size:1.1em; font-family:var(--font-mono); }
+  .microcalc{ text-align:center; color:var(--faint); font-size:.8em; margin-top:16px; }
+
+  /* Científico loco */
+  .prof{ display:flex; gap:14px; align-items:flex-start; background:var(--surface-2);
+    border:1px solid var(--purple); border-radius:16px; padding:16px; margin-top:18px;
+    animation:pop .3s var(--ease); }
+  @keyframes pop{ from{opacity:0; transform:scale(.96);} to{opacity:1; transform:none;} }
+  .prof .avatar{ font-size:2em; line-height:1; flex-shrink:0; filter:drop-shadow(0 0 8px rgba(106,75,216,.5)); }
+  .prof .bubble b{ color:var(--pulse); }
+  .prof .bubble .who{ font-family:var(--font-mono); font-size:.7em; letter-spacing:.08em; color:var(--purple);
+    text-transform:uppercase; display:block; margin-bottom:4px; }
+
+  /* Resultado */
+  .rrow{ display:flex; justify-content:space-between; align-items:center; padding:12px 0; border-bottom:1px solid var(--line); }
+  .stars b{ color:var(--pulse); font-size:1.1em; }
+  .stars .off{ color:var(--faint); }
+  .mastery{ text-align:center; margin:22px 0; }
+  .mastery .v{ font-family:var(--font-head); font-size:2.6em; color:var(--pulse); }
+
+  /* Panel docente */
+  .tabs{ display:flex; gap:8px; margin-bottom:20px; flex-wrap:wrap; }
+  .tab{ background:var(--surface); border:1px solid var(--line-2); border-radius:999px; padding:8px 16px;
+    cursor:pointer; color:var(--muted); font-family:var(--font-body); font-weight:600; font-size:.9em; }
+  .tab[aria-selected="true"]{ background:var(--text); color:var(--bg); border-color:var(--text); }
+  html[data-contrast="alto"] .tab[aria-selected="true"]{ color:#000; }
+  .roster{ width:100%; border-collapse:collapse; font-size:.9em; }
+  .roster th,.roster td{ text-align:left; padding:10px 8px; border-bottom:1px solid var(--line); }
+  .roster th{ font-size:.75em; text-transform:uppercase; letter-spacing:.04em; color:var(--faint); }
+  .dot{ display:inline-block; width:10px; height:10px; border-radius:50%; }
+  .dot.mastery{ background:var(--pulse); } .dot.competent{ background:var(--blue); }
+  .dot.training{ background:#FFB142; } .dot.locked{ background:var(--faint); }
+  .pill{ font-family:var(--font-mono); font-size:.72em; color:var(--danger); border:1px solid rgba(255,107,107,.4);
+    border-radius:999px; padding:2px 8px; }
+  .saved{ background:var(--surface); border:1px solid var(--line); border-left:3px solid var(--pulse);
+    border-radius:10px; padding:12px 14px; margin-bottom:8px; font-size:.9em; }
+  .note{ background:rgba(106,75,216,.08); border:1px solid rgba(106,75,216,.4); border-radius:12px;
+    padding:14px; font-size:.85em; color:var(--muted); margin-top:10px; }
+  .row2{ display:grid; gap:12px; }
+  @media(min-width:540px){ .row2{ grid-template-columns:1fr 1fr; } }
+</style>
+</head>
+<body>
+
+<!-- Barra de accesibilidad (siempre visible) -->
+<div class="a11y" role="group" aria-label="Opciones de accesibilidad">
+  <span aria-hidden="true">Texto</span>
+  <button id="text-toggle" aria-label="Cambiar tamaño del texto">A+</button>
+  <button id="contrast-toggle" aria-pressed="false" aria-label="Activar alto contraste">Contraste</button>
+</div>
+
+<div class="wrap">
+
+  <!-- ============ ACCESO ============ -->
+  <section class="screen active" id="s-acceso" aria-labelledby="h-acceso">
+    <div class="brand"><div class="mark">RCM</div><div class="sub">Entrenador de Razonamiento Clínico</div></div>
+    <p class="lead" id="h-acceso">Entrena el razonamiento detrás del cálculo, no la fórmula de memoria. ¿Cómo entras hoy?</p>
+    <div class="choices two">
+      <button class="choice" onclick="go('s-carrera')">
+        <span class="ic" aria-hidden="true">🎓</span>
+        <h2>Soy estudiante</h2>
+        <p>Practica según tu carrera y asignatura.</p>
+      </button>
+      <button class="choice" onclick="go('s-doc-login')">
+        <span class="ic" aria-hidden="true">🧑‍🏫</span>
+        <h2>Soy docente</h2>
+        <p>Revisa avances y crea ejercicios.</p>
+      </button>
+    </div>
+    <p class="microcalc" style="margin-top:26px">Diseño universal · funciona con lector de pantalla · ajusta texto y contraste arriba a la derecha</p>
+  </section>
+
+  <!-- ============ CARRERA ============ -->
+  <section class="screen" id="s-carrera" aria-labelledby="h-carrera">
+    <button class="back" onclick="go('s-acceso')">← Volver</button>
+    <h1 id="h-carrera" style="margin-bottom:6px">Elige tu carrera</h1>
+    <p class="lead" style="margin:6px 0 24px">Cada carrera entrena las habilidades que necesita en la práctica.</p>
+    <div class="choices two">
+      <button class="choice" onclick="pickCarrera('enfermeria')">
+        <span class="ic" aria-hidden="true">🩺</span>
+        <h2>Enfermería</h2>
+        <p>Cálculo de dosis y balance hídrico.</p>
+      </button>
+      <button class="choice" onclick="pickCarrera('tecmed')">
+        <span class="ic" aria-hidden="true">🔬</span>
+        <h2>Tecnología Médica</h2>
+        <p>Concentraciones, molaridad, absorbancia.</p>
+      </button>
+    </div>
+  </section>
+
+  <!-- ============ LOGIN ESTUDIANTE ============ -->
+  <section class="screen" id="s-login" aria-labelledby="h-login">
+    <button class="back" onclick="go('s-carrera')">← Volver</button>
+    <h1 id="h-login" style="margin-bottom:6px">Ingreso de estudiante</h1>
+    <p class="lead" id="login-carrera" style="margin:6px 0 22px"></p>
+    <div class="card">
+      <div class="field">
+        <label for="email">Correo institucional</label>
+        <input id="email" type="email" inputmode="email" autocomplete="email" placeholder="tunombre@alumnos.uss.cl">
+        <p class="hint">Debe terminar en <b id="dom-hint">uss.cl</b> — así confirmamos que eres estudiante y guardamos tu avance.</p>
+      </div>
+      <div class="field">
+        <label for="asig">Asignatura</label>
+        <select id="asig">
+          <option value="">Selecciona…</option>
+          <option>Farmacología</option>
+          <option>Bioquímica clínica</option>
+          <option>Fundamentos de Enfermería</option>
+          <option>Laboratorio Clínico</option>
+          <option>Otra</option>
+        </select>
+      </div>
+      <p class="err-msg" id="login-err" role="alert"></p>
+      <button class="btn" style="width:100%" onclick="doLogin()">Entrar</button>
+    </div>
+  </section>
+
+  <!-- ============ MENÚ DE TEMAS ============ -->
+  <section class="screen" id="s-temas" aria-labelledby="h-temas">
+    <button class="back" onclick="go('s-acceso')">← Salir</button>
+    <p class="eyebrow" id="temas-user"></p>
+    <h1 id="h-temas" style="margin:4px 0 18px">Elige un tema para entrenar</h1>
+    <div id="temas-list"></div>
+  </section>
+
+  <!-- ============ ENTRENAMIENTO ============ -->
+  <section class="screen" id="s-train" aria-labelledby="h-train">
+    <button class="back" onclick="go('s-temas')">← Temas</button>
+    <div class="progress">
+      <div class="track"><div class="fill" id="fill"></div></div>
+      <span class="count" id="count"></span>
+    </div>
+    <h1 id="h-train" class="eyebrow" style="margin-bottom:10px" id="train-topic"></h1>
+    <div class="case"><p class="q" id="q"></p></div>
+    <div class="options" id="options"></div>
+    <div class="num" id="num" hidden>
+      <input id="num-input" type="text" inputmode="decimal" autocomplete="off" placeholder="Tu respuesta">
+      <button class="btn" onclick="checkNum()">Confirmar</button>
+    </div>
+    <div id="feedback" aria-live="polite"></div>
+    <p class="microcalc">Sin calculadora. Razona cada paso.</p>
+  </section>
+
+  <!-- ============ RESULTADO ============ -->
+  <section class="screen" id="s-result" aria-labelledby="h-result">
+    <p class="eyebrow">RCM analizó tu razonamiento</p>
+    <h1 id="h-result" style="margin:6px 0 16px">Resultado</h1>
+    <div id="result-rows"></div>
+    <div class="mastery"><div class="eyebrow">Dominio</div><div class="v" id="mastery">—%</div></div>
+    <p class="lead">Hoy entrenaste una habilidad.<br>No memorizaste una fórmula.</p>
+    <div style="display:flex; gap:10px; justify-content:center; flex-wrap:wrap">
+      <button class="btn ghost" onclick="go('s-temas')">Otro tema</button>
+      <button class="btn" onclick="go('s-acceso')">Terminar</button>
+    </div>
+  </section>
+
+  <!-- ============ LOGIN DOCENTE ============ -->
+  <section class="screen" id="s-doc-login" aria-labelledby="h-doc-login">
+    <button class="back" onclick="go('s-acceso')">← Volver</button>
+    <h1 id="h-doc-login" style="margin-bottom:6px">Ingreso docente</h1>
+    <p class="lead" style="margin:6px 0 22px">Accede al tablero de tu curso y al generador de ejercicios.</p>
+    <div class="card">
+      <div class="field">
+        <label for="doc-email">Correo institucional docente</label>
+        <input id="doc-email" type="email" placeholder="docente@uss.cl">
+      </div>
+      <p class="err-msg" id="doc-err" role="alert"></p>
+      <button class="btn" style="width:100%" onclick="doDocLogin()">Entrar</button>
+    </div>
+  </section>
+
+  <!-- ============ PANEL DOCENTE ============ -->
+  <section class="screen" id="s-doc" aria-labelledby="h-doc">
+    <button class="back" onclick="go('s-acceso')">← Salir</button>
+    <h1 id="h-doc" style="margin-bottom:14px">Panel docente</h1>
+    <div class="tabs" role="tablist">
+      <button class="tab" role="tab" aria-selected="true" onclick="docTab('t-avances',this)">Avances del curso</button>
+      <button class="tab" role="tab" aria-selected="false" onclick="docTab('t-crear',this)">Crear ejercicio</button>
+    </div>
+
+    <!-- Avances -->
+    <div id="t-avances">
+      <p class="lead" style="text-align:left; margin:0 0 14px">Quién practicó y —lo importante— <b>en qué tipo de error</b>, para saber qué reforzar en clase.</p>
+      <div class="card" style="overflow-x:auto">
+        <table class="roster">
+          <thead><tr><th>Estudiante</th><th>Tema</th><th>Dominio</th><th>Error más común</th></tr></thead>
+          <tbody id="roster-body"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Crear ejercicio -->
+    <div id="t-crear" hidden>
+      <p class="lead" style="text-align:left; margin:0 0 14px">Arma un caso <b>sin programar</b>: completa los campos y la app lo convierte en ejercicio.</p>
+      <div class="card">
+        <div class="row2">
+          <div class="field"><label for="c-carrera">Carrera</label>
+            <select id="c-carrera"><option>Enfermería</option><option>Tecnología Médica</option></select></div>
+          <div class="field"><label for="c-tema">Tema</label>
+            <input id="c-tema" placeholder="Ej: Concentraciones %m/v"></div>
+        </div>
+        <div class="field"><label for="c-q">Pregunta / enunciado</label>
+          <textarea id="c-q" placeholder="Ej: ¿Cuántos gramos de NaCl hay en 500 mL de suero al 0,9% m/v?"></textarea></div>
+        <div class="field"><label for="c-tipo">Tipo de respuesta</label>
+          <select id="c-tipo" onchange="toggleTipo()">
+            <option value="choice">Opción múltiple</option>
+            <option value="input">Respuesta numérica</option>
+          </select></div>
+
+        <div id="c-choices">
+          <div class="field"><label>Opciones (marca la correcta)</label>
+            <div id="opt-rows"></div>
+          </div>
+        </div>
+        <div id="c-num" hidden>
+          <div class="field"><label for="c-answer">Respuesta correcta (número)</label>
+            <input id="c-answer" type="text" inputmode="decimal" placeholder="Ej: 4.5"></div>
+        </div>
+
+        <div class="field"><label for="c-error">Categoría del error (para el docente)</label>
+          <input id="c-error" placeholder="Ej: confundió %m/v con %m/m"></div>
+        <div class="field"><label for="c-prof">Mensaje del científico loco (retroalimentación)</label>
+          <textarea id="c-prof" placeholder="Ej: ¡Ajá! %m/v son gramos por 100 mL, no por 100 g. Ese detalle cambia toda tu dilución…"></textarea></div>
+
+        <p class="err-msg" id="c-err" role="alert"></p>
+        <div style="display:flex; gap:10px; flex-wrap:wrap">
+          <button class="btn ghost" onclick="previewCase()">Vista previa</button>
+          <button class="btn" onclick="saveCase()">Guardar caso</button>
+        </div>
+      </div>
+
+      <div id="preview-wrap" style="margin-top:16px"></div>
+
+      <h2 style="font-size:1.1em; margin:22px 0 10px">Casos creados</h2>
+      <div id="saved-list"><p class="microcalc" style="text-align:left">Aún no has creado casos en esta sesión.</p></div>
+
+      <div class="note">
+        <b>🤖 Próximamente — asistencia con IA.</b> Sube una guía en Word, PDF o JPG y la IA
+        <b>pre-llena estos campos</b> con casos propuestos; tú los revisas, corriges y apruebas antes de publicar.
+        En salud, la última palabra siempre es del docente. (Requiere un servidor con llave de IA — se activa en la siguiente etapa.)
+        <div style="margin-top:10px"><button class="btn ghost" disabled>Subir guía (IA) — próximamente</button></div>
+      </div>
+    </div>
+  </section>
+
+</div>
+
+<script>
+/* ====================== NAVEGACIÓN ====================== */
+function go(id){
+  document.querySelectorAll('.screen').forEach(s=>s.classList.toggle('active', s.id===id));
+  window.scrollTo({top:0, behavior:'instant'});
+  const first = document.querySelector('#'+id+' h1, #'+id+' .brand');
+  if(first) first.setAttribute('tabindex','-1'), first.focus({preventScroll:true});
+}
+
+/* ====================== ACCESIBILIDAD ====================== */
+const htmlEl = document.documentElement;
+document.getElementById('text-toggle').addEventListener('click', e=>{
+  let t = (+htmlEl.dataset.text % 3) + 1;   // 1→2→3→1
+  htmlEl.dataset.text = t;
+  e.target.textContent = t===1?'A+':t===2?'A++':'A';
+});
+document.getElementById('contrast-toggle').addEventListener('click', e=>{
+  const on = htmlEl.dataset.contrast!=='alto';
+  htmlEl.dataset.contrast = on?'alto':'normal';
+  e.target.setAttribute('aria-pressed', on);
+});
+
+/* ====================== ESTADO ====================== */
+const DOMINIO = 'uss.cl';   // <-- cambia esto por el dominio real de tu universidad
+const app = { carrera:null, email:null, asignatura:null, tema:null, step:0, scores:{} };
+
+/* ====================== CONTENIDO ====================== */
+const TEMAS = {
+  enfermeria: [
+    { id:'dosis',   label:'Cálculo de dosis', estado:'activo' },
+    { id:'balance', label:'Balance hídrico',  estado:'activo' },
+    { id:'goteo',   label:'Goteo e infusión', estado:'proximo' },
+  ],
+  tecmed: [
+    { id:'conc',    label:'Concentraciones (%m/m, %m/v, %v/v)', estado:'activo' },
+    { id:'absorb',  label:'Regla de 3 con absorbancia',         estado:'activo' },
+    { id:'gl',      label:'g/L y mg/dL',            estado:'proximo' },
+    { id:'molar',   label:'Molaridad',              estado:'proximo' },
+    { id:'convert', label:'Conversión de unidades', estado:'proximo' },
+    { id:'densidad',label:'Densidad',               estado:'proximo' },
+  ]
+};
+
+const CASOS = {
+  dosis: [
+    { q:'Tienes una ampolla de 500 mg en 5 mL. ¿Qué representa el 500?', type:'choice', cat:'Comprensión',
+      opts:[{t:'Los mg totales que hay en la ampolla',c:true},{t:'La dosis a administrar',c:false},{t:'El volumen a inyectar',c:false}],
+      prof:'¡Cuidado! 500 es lo que HAY, no lo que das. Confundir eso es el primer paso para una sobredosis.' },
+    { q:'Debes administrar 250 mg. ¿Qué necesitas encontrar?', type:'choice', cat:'Interpretación',
+      opts:[{t:'mg',c:false},{t:'mL',c:true},{t:'gotas/min',c:false}],
+      prof:'La jeringa mide mL, no mg. Si buscas la unidad equivocada, no sabrás cuánto cargar.' },
+    { q:'¿Cuánto hay en 1 mL?', type:'choice', cat:'Estrategia',
+      opts:[{t:'500 mg',c:false},{t:'100 mg',c:true},{t:'50 mg',c:false},{t:'250 mg',c:false}],
+      prof:'500 mg ÷ 5 mL = 100 mg/mL. Este número es tu llave para todo lo que sigue.' },
+    { q:'Entonces, ¿cuántos mL administras para dar 250 mg?', type:'input', cat:'Resultado', answer:2.5,
+      prof:'250 mg ÷ 100 mg/mL = 2,5 mL. Un factor 10 aquí (25 mL) sería un error grave.' },
+  ],
+  balance: [
+    { q:'En un balance hídrico, ¿cuál de estos es un INGRESO?', type:'choice', cat:'Comprensión',
+      opts:[{t:'Diuresis',c:false},{t:'Suero endovenoso',c:true},{t:'Deposiciones',c:false}],
+      prof:'El suero entra al paciente → ingreso. La diuresis sale → egreso. No los mezcles de columna.' },
+    { q:'Ingresos 2000 mL, egresos 1500 mL. ¿Cuál es el balance?', type:'input', cat:'Resultado', answer:500,
+      prof:'Balance = ingresos − egresos = 2000 − 1500 = +500 mL. Positivo significa que retiene líquido.' },
+  ],
+  conc: [
+    { q:'Una solución al 0,9% m/v significa…', type:'choice', cat:'Comprensión',
+      opts:[{t:'0,9 g por cada 100 mL',c:true},{t:'0,9 g por cada 100 g',c:false},{t:'0,9 mL por cada 100 mL',c:false}],
+      prof:'%m/v = gramos por 100 mL. El "v" es de volumen. Confundirlo con m/m te cambia toda la masa.' },
+    { q:'¿Cuántos gramos de NaCl hay en 500 mL de suero al 0,9% m/v?', type:'input', cat:'Resultado', answer:4.5,
+      prof:'0,9 g por 100 mL → en 500 mL hay 0,9 × 5 = 4,5 g. Regla de 3 pura.' },
+  ],
+  absorb: [
+    { q:'Un estándar de 100 mg/dL da absorbancia 0,40. Tu muestra da 0,30. ¿Qué método usas?', type:'choice', cat:'Estrategia',
+      opts:[{t:'Regla de 3 (proporción directa)',c:true},{t:'Restar las absorbancias',c:false},{t:'Multiplicar por 2',c:false}],
+      prof:'La absorbancia es proporcional a la concentración (Beer). Por eso: regla de 3 directa.' },
+    { q:'Con esos datos, ¿qué concentración tiene tu muestra (mg/dL)?', type:'input', cat:'Resultado', answer:75,
+      prof:'(100 mg/dL × 0,30) ÷ 0,40 = 75 mg/dL. Así sale el resultado real de tu paciente.' },
+  ],
+};
+
+/* ====================== FLUJO ESTUDIANTE ====================== */
+function pickCarrera(c){
+  app.carrera = c;
+  document.getElementById('login-carrera').textContent =
+    (c==='enfermeria'?'Enfermería':'Tecnología Médica') + ' · ingresa para guardar tu avance.';
+  document.getElementById('dom-hint').textContent = DOMINIO;
+  go('s-login');
+}
+function doLogin(){
+  const email = document.getElementById('email').value.trim().toLowerCase();
+  const asig = document.getElementById('asig').value;
+  const err = document.getElementById('login-err');
+  if(!email.includes('@') || !email.endsWith(DOMINIO)){ err.textContent = 'Usa tu correo institucional (…@'+DOMINIO+').'; return; }
+  if(!asig){ err.textContent = 'Selecciona tu asignatura.'; return; }
+  err.textContent = '';
+  app.email = email; app.asignatura = asig;
+  renderTemas();
+  go('s-temas');
+}
+function renderTemas(){
+  document.getElementById('temas-user').textContent =
+    (app.carrera==='enfermeria'?'Enfermería':'Tec Médica') + ' · ' + app.asignatura + ' · ' + app.email;
+  const list = document.getElementById('temas-list'); list.innerHTML='';
+  TEMAS[app.carrera].forEach(t=>{
+    const b = document.createElement('button');
+    b.className='topic'; b.disabled = t.estado!=='activo';
+    b.innerHTML = `<span class="t-name">${t.label}</span>
+      <span class="t-tag ${t.estado==='activo'?'on':''}">${t.estado==='activo'?'Disponible':'Próximamente'}</span>`;
+    if(t.estado==='activo') b.onclick = ()=>startTema(t.id, t.label);
+    list.appendChild(b);
+  });
+}
+
+/* ====================== MOTOR ====================== */
+function startTema(id,label){
+  app.tema=id; app.step=0; app.scores={};
+  document.getElementById('train-topic').textContent = label;
+  renderStep();
+  go('s-train');
+}
+function renderStep(){
+  const steps = CASOS[app.tema];
+  const step = steps[app.step];
+  step._tries = 0;
+  document.getElementById('fill').style.width = (app.step/steps.length*100)+'%';
+  document.getElementById('count').textContent = `Paso ${app.step+1} de ${steps.length}`;
+  document.getElementById('q').textContent = step.q;
+  document.getElementById('feedback').innerHTML='';
+  const opts = document.getElementById('options');
+  const num = document.getElementById('num');
+  opts.innerHTML='';
+  if(step.type==='choice'){
+    num.hidden=true; opts.hidden=false;
+    step.opts.forEach(o=>{
+      const b=document.createElement('button');
+      b.className='option'; b.textContent=o.t;
+      b.onclick=()=>choose(b,o,step);
+      opts.appendChild(b);
+    });
+  } else {
+    opts.hidden=true; num.hidden=false;
+    const inp=document.getElementById('num-input'); inp.value=''; inp.disabled=false; inp.focus();
+  }
+}
+function choose(btn,o,step){
+  if(o.c){
+    document.querySelectorAll('#options .option').forEach(x=>x.classList.add('done'));
+    btn.classList.add('ok');
+    score(step);
+    setTimeout(next, 850);
+  } else {
+    btn.classList.add('no','done'); btn.disabled=true;
+    step._tries++;
+    showProf(step);
+  }
+}
+function checkNum(){
+  const steps=CASOS[app.tema], step=steps[app.step];
+  const inp=document.getElementById('num-input');
+  const val=parseFloat(inp.value.trim().replace(',','.'));
+  if(!isNaN(val) && Math.abs(val-step.answer)<0.01){
+    inp.disabled=true; score(step);
+    document.getElementById('feedback').innerHTML='';
+    setTimeout(next, 700);
+  } else {
+    step._tries++; showProf(step);
+  }
+}
+function showProf(step){
+  document.getElementById('feedback').innerHTML =
+    `<div class="prof"><span class="avatar" aria-hidden="true">🥽</span>
+      <div class="bubble"><span class="who">Dr. Cálculo dice:</span>${step.prof}</div></div>`;
+}
+function score(step){
+  const s = step._tries===0?100:step._tries===1?70:40;
+  (app.scores[step.cat] = app.scores[step.cat]||[]).push(s);
+}
+function next(){
+  const steps=CASOS[app.tema];
+  app.step++;
+  if(app.step<steps.length) renderStep();
+  else finish();
+}
+function finish(){
+  const rows=document.getElementById('result-rows'); rows.innerHTML='';
+  const cats=Object.keys(app.scores); let all=[];
+  cats.forEach(cat=>{
+    const arr=app.scores[cat]; const avg=arr.reduce((a,b)=>a+b,0)/arr.length; all.push(avg);
+    const stars=Math.max(1,Math.round(avg/20));
+    let s=''; for(let i=0;i<5;i++) s+= i<stars?'<b>★</b>':'<span class="off">★</span>';
+    rows.innerHTML += `<div class="rrow"><span>${cat}</span><span class="stars">${s}</span></div>`;
+  });
+  const mastery = all.length?Math.round(all.reduce((a,b)=>a+b,0)/all.length):0;
+  document.getElementById('mastery').textContent = mastery+'%';
+  go('s-result');
+}
+
+/* ====================== FLUJO DOCENTE ====================== */
+function doDocLogin(){
+  const email=document.getElementById('doc-email').value.trim().toLowerCase();
+  const err=document.getElementById('doc-err');
+  if(!email.includes('@') || !email.endsWith(DOMINIO)){ err.textContent='Usa tu correo institucional (…@'+DOMINIO+').'; return; }
+  err.textContent=''; renderRoster(); go('s-doc');
+}
+function docTab(id,btn){
+  document.getElementById('t-avances').hidden = id!=='t-avances';
+  document.getElementById('t-crear').hidden = id!=='t-crear';
+  document.querySelectorAll('#s-doc .tab').forEach(t=>t.setAttribute('aria-selected','false'));
+  btn.setAttribute('aria-selected','true');
+}
+const ROSTER=[
+  {n:'María Fernanda Soto',t:'Cálculo de dosis',d:88,e:'Razón invertida',s:'competent'},
+  {n:'Joaquín Pérez Bravo',t:'Concentraciones %m/v',d:64,e:'Confundió %m/v con %m/m',s:'training'},
+  {n:'Antonia Reyes Muñoz',t:'Regla de 3 (absorbancia)',d:55,e:'No despejó la proporción',s:'training'},
+  {n:'Benjamín Torres Lagos',t:'Balance hídrico',d:92,e:'—',s:'mastery'},
+  {n:'Catalina Vidal Rojas',t:'Cálculo de dosis',d:40,e:'Error de factor 10',s:'training'},
+];
+function renderRoster(){
+  const b=document.getElementById('roster-body'); b.innerHTML='';
+  ROSTER.forEach(r=>{
+    b.innerHTML += `<tr>
+      <td><span class="dot ${r.s}"></span> ${r.n}</td>
+      <td>${r.t}</td><td>${r.d}%</td>
+      <td>${r.e==='—'?'—':'<span class="pill">'+r.e+'</span>'}</td></tr>`;
+  });
+}
+
+/* ---- Generador de casos (formulario) ---- */
+const CASOS_CREADOS=[];
+function optRows(){
+  const wrap=document.getElementById('opt-rows'); wrap.innerHTML='';
+  for(let i=0;i<4;i++){
+    wrap.innerHTML += `<div style="display:flex; gap:8px; align-items:center; margin-bottom:8px">
+      <input type="radio" name="correct" value="${i}" aria-label="Marcar opción ${i+1} como correcta" ${i===0?'checked':''}>
+      <input type="text" id="opt${i}" placeholder="Opción ${i+1}" style="flex:1; background:var(--surface); border:1px solid var(--line-2); border-radius:10px; padding:10px 12px; color:var(--text); font-family:var(--font-body)">
+    </div>`;
+  }
+}
+function toggleTipo(){
+  const t=document.getElementById('c-tipo').value;
+  document.getElementById('c-choices').hidden = t!=='choice';
+  document.getElementById('c-num').hidden = t!=='input';
+}
+function collectCase(){
+  const tipo=document.getElementById('c-tipo').value;
+  const c={ carrera:document.getElementById('c-carrera').value, tema:document.getElementById('c-tema').value.trim(),
+    q:document.getElementById('c-q').value.trim(), type:tipo,
+    cat:document.getElementById('c-error').value.trim(), prof:document.getElementById('c-prof').value.trim() };
+  if(tipo==='choice'){
+    const idx=+document.querySelector('input[name=correct]:checked').value;
+    c.opts=[]; for(let i=0;i<4;i++){ const v=document.getElementById('opt'+i).value.trim(); if(v) c.opts.push({t:v,c:i===idx}); }
+  } else { c.answer=document.getElementById('c-answer').value.trim(); }
+  return c;
+}
+function validCase(c){
+  if(!c.tema||!c.q){ return 'Completa al menos el tema y la pregunta.'; }
+  if(c.type==='choice' && (c.opts.length<2 || !c.opts.some(o=>o.c))) return 'Agrega al menos 2 opciones y marca la correcta.';
+  if(c.type==='input' && !c.answer) return 'Indica la respuesta numérica correcta.';
+  return '';
+}
+function previewCase(){
+  const c=collectCase(); const err=validCase(c);
+  document.getElementById('c-err').textContent=err; if(err) return;
+  let body = c.type==='choice'
+    ? c.opts.map(o=>`<div class="option done ${o.c?'ok':''}" style="margin-bottom:6px">${o.t}${o.c?' ✓':''}</div>`).join('')
+    : `<div class="option done ok">Respuesta correcta: ${c.answer}</div>`;
+  document.getElementById('preview-wrap').innerHTML =
+    `<div class="card"><p class="eyebrow">Vista previa del caso</p>
+      <p class="q" style="font-family:var(--font-head); font-size:1.1em; margin:8px 0 12px">${c.q}</p>
+      ${body}
+      ${c.prof?`<div class="prof" style="margin-top:12px"><span class="avatar">🥽</span><div class="bubble"><span class="who">Dr. Cálculo dice:</span>${c.prof}</div></div>`:''}</div>`;
+}
+function saveCase(){
+  const c=collectCase(); const err=validCase(c);
+  document.getElementById('c-err').textContent=err; if(err) return;
+  CASOS_CREADOS.push(c);
+  const list=document.getElementById('saved-list'); list.innerHTML='';
+  CASOS_CREADOS.forEach((x,i)=> list.innerHTML += `<div class="saved"><b>${i+1}. ${x.tema}</b> — ${x.carrera}<br><span style="color:var(--muted)">${x.q}</span></div>`);
+  document.getElementById('preview-wrap').innerHTML='';
+  ['c-tema','c-q','c-error','c-prof','c-answer'].forEach(id=>{const el=document.getElementById(id); if(el) el.value='';});
+  for(let i=0;i<4;i++){const el=document.getElementById('opt'+i); if(el) el.value='';}
+}
+
+/* init */
+optRows();
+</script>
+</body>
+</html>
